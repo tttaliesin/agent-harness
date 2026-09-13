@@ -24,9 +24,10 @@ worker worktrees, local commits, integration, and integrated verification—not 
 - A worker result, passing worker check, merge, or cherry-pick is not integrated proof. The named
   owner remains responsible until the agreed destination and acceptance criteria are verified.
 
-Load [the ownership boundary](references/ownership-boundary.md) when authorization or repository
-scope must be established. Load the installed `github-operations` skill when Issue classification,
-remote effects, or final branch cleanup may be involved.
+Apply the target repository's workspace policy and preserve the approved scope through handoff.
+Load the available `github-operations` skill when Issue classification, remote effects or final
+branch cleanup may be involved. If it is unavailable, continue independently authorized local
+work and identify any unresolved operation contract before the dependent action.
 
 ## Route by current phase
 
