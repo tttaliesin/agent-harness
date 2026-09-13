@@ -793,66 +793,13 @@ graph TB
 
 ## Summary Workflow
 
-```mermaid
-flowchart TD
-    Start([Receive Codebase]) --> Identify[🔍 Identify Framework<br/>Check files, imports, annotations]
-
-    Identify --> LoadGuide[📚 Load Framework-Specific Guide<br/>Spring Boot, FastAPI, React, etc.]
-
-    LoadGuide --> Analyze[🧩 Analyze Code Structure<br/>Directories, configs, dependencies]
-
-    Analyze --> SelectDiagram{📊 Select Diagram Type}
-
-    SelectDiagram -->|Structure| ArchDiagram[🏗️ Architecture Diagram]
-    SelectDiagram -->|Config| DeployDiagram[☁️ Deployment Diagram]
-    SelectDiagram -->|Methods| SeqDiagram[📨 Sequence Diagram]
-    SelectDiagram -->|Logic| ActDiagram[⚡ Activity Diagram]
-
-    ArchDiagram --> Generate[✏️ Generate Mermaid Code]
-    DeployDiagram --> Generate
-    SeqDiagram --> Generate
-    ActDiagram --> Generate
-
-    Generate --> Validate[✅ Validate Syntax<br/>scripts/extract_mermaid.py]
-
-    Validate --> Valid{Valid?}
-    Valid -->|No| Fix[🔧 Fix Syntax Errors]
-    Fix --> Validate
-
-    Valid -->|Yes| Review[👥 Team Review]
-
-    Review --> Approved{Approved?}
-    Approved -->|No| Refine[📝 Refine Diagram]
-    Refine --> Generate
-
-    Approved -->|Yes| Document[📄 Add to Documentation]
-    Document --> Done([✅ Complete])
-
-    classDef process fill:#4ECDC4,stroke:#0B7285,color:#fff
-    classDef decision fill:#FFE66D,stroke:#F08C00,color:#000
-    classDef diagram fill:#95E1D3,stroke:#087F5B,color:#000
-    classDef done fill:#A8DADC,stroke:#1864AB,color:#000
-
-    class Identify,LoadGuide,Analyze,Generate,Validate,Review,Document process
-    class SelectDiagram,Valid,Approved decision
-    class ArchDiagram,DeployDiagram,SeqDiagram,ActDiagram diagram
-    class Done done
-```
-
----
-
-## Quick Start Checklist
-
-- [ ] **Step 1:** Identify framework (Spring Boot, FastAPI, React, etc.)
-- [ ] **Step 2:** Load appropriate framework example guide
-- [ ] **Step 3:** Decide which diagram type(s) to create
-- [ ] **Step 4:** Extract relevant code patterns
-- [ ] **Step 5:** Generate Mermaid diagram using guide templates
-- [ ] **Step 6:** Add Unicode symbols for clarity
-- [ ] **Step 7:** Apply high-contrast styling
-- [ ] **Step 8:** Validate syntax with validation script
-- [ ] **Step 9:** Review with team
-- [ ] **Step 10:** Commit to version control with code
+Inspect the scoped code and configuration, choose the diagram type that answers the user's question, and read only matching examples.
+Generate the diagram from supported facts and apply the presentation rules in `SKILL.md`.
+Run available source, syntax, and rendering checks and fix known errors.
+An unavailable renderer leaves rendering unverified; it does not by itself block requested local Markdown integration.
+Apply a successful-render or human-review requirement only when the user or repository explicitly requires it, and reuse matching approval.
+Complete the requested local document and report the checks and remaining limitations.
+Commit or publish only when that action is within the user's authorized delivery scope.
 
 ---
 

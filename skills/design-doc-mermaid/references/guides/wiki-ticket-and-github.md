@@ -9,7 +9,7 @@ A local renderer pass does not prove the remote viewer's compatibility.
 For image-based destinations, prepare the required PNG/SVG beside the editable source.
 Upload or publish only to the user-authorized destination through the owning integration.
 Preparation is not authorization to post a Wiki, Confluence, Notion or other external page.
-Preserve the code-to-diagram team review/approval gate before final documentation integration.
+Apply any human review or approval explicitly required by the user or repository before the affected integration.
 Follow repository Markdown language and structure rules; do not impose STE100 or an unavailable document-specialist skill.
 
 ## PlantUML remains opt-in
@@ -23,5 +23,6 @@ Render selected PlantUML to PNG/SVG and link the actual image; publishing remain
 Derive existing-system nodes and edges from actual code, configuration or events.
 Keep scope omissions explicit and do not invent services.
 Retain semantic Unicode and high-contrast custom text styling as specified by SKILL.md.
-Validate before committing or final integration and retain editable source at the repository-established location.
-For code-to-diagram output, retain team review and approval before integration.
+Run available syntax/render checks and retain editable source at the repository-established location.
+If a renderer is unavailable, complete authorized local Markdown integration with source checks and disclose the unverified rendering scope, unless a successful render is an explicit acceptance requirement.
+Reuse matching approval; do not add a human review gate solely because a diagram describes code.

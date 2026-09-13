@@ -55,13 +55,12 @@ GitHub/Obsidian version support must be checked for the actual syntax; experimen
 Keep the editable source in the requested document or repository-established `.mmd` location; avoid two independently edited sources of truth.
 When exporting images, preserve the `.mmd` input and record the tool version and actual validation scope.
 
-Validate before integrating a diagram into final documentation or committing it.
-If validation is unavailable, prepare and report the source as a separate unvalidated draft and pause only final integration.
-Do not add an unvalidated diagram to the final Markdown or claim a render pass.
-For code-to-diagram documentation integration, retain the upstream Team Review → Approved? → Add to Documentation gate.
-Only user/team approval evidence satisfies that gate; rendering or an agent's own review does not.
-Reuse an existing approval only when its scope and validity conditions still match the artifact.
-A helper-generated Markdown file is a review candidate, not proof of approval or automatic replacement of the final document.
+Check source meaning and syntax with the available validation tools before delivery; fix known errors.
+If rendering is unavailable, inspect the source, complete the requested local Markdown integration, and report that rendering or viewer appearance remains unverified.
+When the user or repository explicitly requires a successful render, human review, or approval before integration, complete source preparation and available checks first, then pause only the affected integration.
+Reuse approval when its scope and validity conditions still match; an ordinary request to add a local diagram does not require another approval.
+Rendering or an agent's review does not satisfy an explicitly required human review.
+A helper-generated Markdown file still needs content and link checks before replacing the requested document.
 
 Report syntax/rendering, source meaning, actual viewer appearance, and required human review as separate results.
 Screenshot creation does not prove visual acceptance; a source citation does not prove live topology.

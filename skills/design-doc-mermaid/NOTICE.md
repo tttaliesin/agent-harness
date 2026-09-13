@@ -10,4 +10,5 @@ The original declarations can be found at the upstream revision linked above.
 Local modifications on 2026-09-05 implement task-scoped output/publication, evidence and review gates, host-independent tool selection, and safer local rendering and Markdown conversion.
 Python helper implementations were replaced; their supported CLI interface is documented in the local workflow.
 Upstream presentation discretion was not expanded: semantic Unicode requirements and PlantUML opt-in remain.
+Local changes on 2026-09-12 make human review and successful rendering prerequisites conditional on explicit user or repository requirements; unavailable rendering is disclosed when completing authorized local Markdown work.
 Local changes are maintained in Git history.

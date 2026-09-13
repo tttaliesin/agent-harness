@@ -16,5 +16,5 @@ For proposed designs, label choices as proposed and retain unresolved requiremen
 Templates and framework examples are illustrations only.
 Unchecked security/test/review items stay unverified until actual evidence supports them.
 Do not mark team approval complete because a template contains a review section.
-The code-to-diagram workflow still requires team/user review and approval before final documentation integration.
-Complete source preparation and authorized validation first, then wait only at that real gate.
+Require team/user review before integration only when the user or repository explicitly requires it.
+Complete source preparation and available validation first; reuse matching approval and pause only the action subject to an unmet requirement.

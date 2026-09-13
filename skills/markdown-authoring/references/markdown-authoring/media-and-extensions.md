@@ -51,7 +51,8 @@ understand structure or behavior.
 
 For substantive Mermaid modeling, code-to-diagram evidence, rendering, or image conversion, use the available `design-doc-mermaid` skill within the same task.
 Keep document structure, language, links, and accessibility under these Markdown rules; the diagram skill owns diagram-specific evidence and validation.
-Carry existing valid scope and approvals into that routing, and preserve its final-document validation and code-to-diagram team approval gates.
+Carry existing valid scope and approvals into that routing, and apply source and available syntax/render checks.
+Require successful rendering or human approval before integration only when explicitly required by the user or repository; otherwise complete authorized local Markdown work and disclose unavailable rendering.
 If the diagram skill is unavailable, continue the authorized work with these rules and report missing validation rather than installing it implicitly.
 
 - Use `flowchart` for a process, branching flow, pipeline, or dependency.

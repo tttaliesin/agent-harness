@@ -55,8 +55,8 @@ Every supported block must render before any replacement is published.
 Links are built from each occurrence and actual generated artifacts, with preserved `.mmd` sources.
 Assets use content hashes and are not overwritten; the input Markdown is never the output path.
 The helper preserves old files on render failure and refuses conflicting output unless the exact candidate overwrite was authorized.
-The result is a local review candidate, not an approved final document.
-User/team approval and final integration remain separate actions.
+Check the candidate's content and links before using it in the requested final document.
+Require separate user/team approval only when the user or repository explicitly requires it; rendering does not satisfy that human review.
 
 ## Runtime and failure classification
 
