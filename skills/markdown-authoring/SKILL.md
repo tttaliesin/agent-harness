@@ -31,8 +31,9 @@ Before editing a generated Markdown artifact, find repository evidence for its c
 
 ## Use the relevant writing rules
 
-Read [the common Markdown authoring rules](references/markdown-authoring-rules.md) for every create,
-edit, or review task. Then load only the conditional reference required by the artifact or change:
+For creation, structural rewrites, or a broad review, read [the common Markdown authoring rules](references/markdown-authoring-rules.md).
+For a local link, path, number, typo, or similarly narrow change or review, use this entrypoint and only the reference needed to resolve the affected rule; do not reload unrelated guidance.
+Then load only the conditional reference required by the artifact or change:
 
 - For lists, procedures, tables, code, commands, emphasis, links, and navigation, read
   [Text and navigation](references/markdown-authoring/text-and-navigation.md).
