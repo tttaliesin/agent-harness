@@ -1,5 +1,0 @@
-interface:
-  display_name: "Dual Session"
-  short_description: "설계와 실행을 두 개의 지속 대화로 나누고 결과를 연결"
-policy:
-  allow_implicit_invocation: true

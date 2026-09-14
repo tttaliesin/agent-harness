@@ -92,7 +92,6 @@ Git과 Node.js/npm 준비 후 README를 바꿀 대상 프로젝트를 Codex에�
 
 | 스킬 | 선택할 작업 |
 | --- | --- |
-| [dual-session](skills/dual-session/SKILL.md) | 같은 작업의 설계·검토와 구현·실행을 두 개의 지속되는 Codex 작업으로 나눌 때 사용 |
 | [parallel-worktree-development](skills/parallel-worktree-development/SKILL.md) | 독립적인 구현 조각을 여러 Git worktree에서 병렬 개발하고 로컬 결과를 통합할 때 사용 |
 | [multi-github-account-operate](skills/multi-github-account-operate/SKILL.md) | 한 GitHub.com HTTPS 저장소만 지정 계정에 연결하고 전역 로그인 변경 없이 인증 분리 |
 | [github-operations](skills/github-operations/SKILL.md) | Issue·브랜치·PR·merge·release의 권한, 납품과 실제 상태 검증 |
