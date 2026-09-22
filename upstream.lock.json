@@ -298,6 +298,7 @@
     "docs/implementation/compatibility-blockers.md": "74ed141d943766d36f09636474a866617aa9199f07439a755a602a290a00caa2",
     "docs/implementation/environment-audit.md": "b92f7c4e2af4ae993556d475b5b5a4b884ca4fbc5dd74150b7368140e2bbbc2f",
     "docs/implementation/layout-map.md": "15837e2e59957c6fc913ed5bae32a49a06b7ae9f4dfc1b7e0fe455bbfd1fe300",
+    "docs/implementation/skills-r1-result.md": "bc310cdea5ce19fe0d2b744ad07d0e4843a7cf13f9902467ae1b087dbc346954",
     "docs/local-skill-customizations.md": "7208bd846107a98191f5ffb7bed1cd8524b9a3153ffc664853b09044dd8604d2",
     "docs/maintenance.md": "278a401a77c1a762c8a76f453b6f9d313089ee68e2f797f9dd39ac1e338979f8",
     "docs/skills-migration.md": "7777623817c70d6081c29dc086ae7f2f08cb09db738a79f82784188ebc9a000c",
