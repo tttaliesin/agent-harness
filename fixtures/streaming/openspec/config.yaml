@@ -1,0 +1,7 @@
+schema: spec-driven
+context: |
+  Isolated streaming acceptance fixture for the shared skill repository.
+  Commands and tool versions are maintained in README.md.
+  The original user request authorizes implementing and verifying this fixture.
+  Use existing commands and shared skills; no separate adapter or consumer runtime.
+  Passing fixture checks never establishes actual product or operational acceptance.
