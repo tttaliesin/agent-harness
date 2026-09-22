@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+        },
+        "root": {
+          "const": "."
+        },
+        "packs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "root",
+        "packs"
+      ]
+    },
+    "documents": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "type": "string",
+          "minLength": 1
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architecture": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decisions": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tracker": {
+          "type": "string",
+          "minLength": 1
+        },
+        "specs": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "agents",
+        "domain",
+        "architecture",
+        "decisions",
+        "tracker",
+        "specs"
+      ]
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "baseline_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "checks": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "kind": {
+                "enum": [
+                  "structural",
+                  "static",
+                  "tests"
+                ]
+              },
+              "timeout_seconds": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 86400
+              },
+              "report": {
+                "type": "string",
+                "minLength": 1
+              },
+              "report_format": {
+                "enum": [
+                  "junit",
+                  "playwright-json"
+                ]
+              },
+              "minimum_tests": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "allow_skipped": {
+                "type": "boolean"
+              },
+              "required_tools": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0,
+                "uniqueItems": true
+              },
+              "resources": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "browser",
+                    "gpu"
+                  ]
+                },
+                "minItems": 0,
+                "uniqueItems": true
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "kind",
+              "timeout_seconds"
+            ],
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "kind": {
+                      "const": "tests"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "report",
+                    "report_format",
+                    "minimum_tests"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "baseline_checks",
+        "checks"
+      ]
+    },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "maximum_repair_rounds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "review_axes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "spec",
+              "standards"
+            ]
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "allow_missing_spec": {
+          "const": false
+        },
+        "release_requires_approval": {
+          "const": true
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "maximum_repair_rounds",
+        "review_axes",
+        "allow_missing_spec",
+        "release_requires_approval"
+      ]
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "evidence"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "documents",
+    "verification",
+    "workflow",
+    "outputs"
+  ]
+}

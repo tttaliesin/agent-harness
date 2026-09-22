@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "change_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "change_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+    },
+    "state": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED"
+      ]
+    },
+    "unresolved_findings": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "fingerprint": {
+      "type": "object",
+      "properties": {
+        "head": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "base": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "worktree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "project": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "policy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "changes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "specs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "locks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "checks": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "head",
+        "base",
+        "tree",
+        "dirty",
+        "worktree",
+        "project",
+        "policy",
+        "changes",
+        "specs",
+        "locks",
+        "checks"
+      ]
+    },
+    "evidence": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "local"
+        },
+        "verified": {
+          "const": false
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "verified"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "change_ids",
+    "state",
+    "unresolved_findings",
+    "fingerprint",
+    "evidence",
+    "evidence_sha256",
+    "provenance"
+  ]
+}

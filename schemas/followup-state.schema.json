@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "done": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "active": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{48}$"
+            },
+            "owner": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+            },
+            "event_key": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "worktree": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "token",
+            "owner",
+            "event_key",
+            "worktree"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "done",
+    "active"
+  ]
+}

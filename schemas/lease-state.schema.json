@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "leases": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+          },
+          "change_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+          },
+          "owner": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+          },
+          "resource": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,95}$"
+          },
+          "token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{48}$"
+          },
+          "worktree": {
+            "type": "string",
+            "minLength": 1
+          },
+          "directory": {
+            "type": "string",
+            "minLength": 1
+          },
+          "created": {
+            "type": "number",
+            "minimum": 0
+          },
+          "expires": {
+            "type": "number",
+            "minimum": 0
+          },
+          "allocator_pid": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "namespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "const": "cooperative_local"
+          },
+          "readiness_verified": {
+            "const": false
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "change_id",
+          "owner",
+          "resource",
+          "token",
+          "worktree",
+          "directory",
+          "created",
+          "expires",
+          "allocator_pid",
+          "namespace",
+          "kind",
+          "readiness_verified"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "leases"
+  ]
+}
