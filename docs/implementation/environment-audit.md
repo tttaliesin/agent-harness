@@ -19,7 +19,7 @@
 | OpenSpec | 1.13.1 | SUPPORTED: pinned CLI; 생성 결과는 openspec-binding.md 참고 |
 | Docker Compose | WSL v5.4.0 | SUPPORTED: 버전 조회; fixture 실행은 다음 단계 |
 | process-compose | 설치 경로 없음 | UNVERIFIED: 제품 fixture 단계에서 필요한 경우 설치·검증 |
-| GitHub 저장소 | developer-skills public, workspace-rules private | BLOCKED: 공개 범위 미확정 원격 이관 |
+| GitHub 저장소 | tttaliesin/developer-skills public, workspace-rules private | AUTHORIZED: 2026-09-22 민감정보 검사 후 공개 push 요청; 원격 SHA 확인 필요 |
 
 ## 관측 방법
 
@@ -27,7 +27,8 @@
 - 별도 app-server를 초기화하여 `skills/list`와 `hooks/list` 호출; 새 task·모델 실행·내부 DB 수정 없음
 - 공식 OpenSpec 1.13.1을 작업 전용 경로에 설치하여 실제 help·생성 경로 확인
 - just 1.58.0의 Windows·Linux 공식 release artifact와 SHA256 대조
-- GitHub repo 조회에서 visibility와 ADMIN 권한 확인; 공개 범위 변경이나 push 없음
+- GitHub repo 조회에서 public visibility와 ADMIN 권한 재확인; 기존 visibility 유지
+- 사용자 요청에 따라 최종 추적 파일과 미전송 커밋 이력을 Gitleaks 및 주소·개인정보 후보 검사로 검토한 뒤 push; 성공 여부는 원격 main SHA와 별도 전달 기록으로 확인
 
 ## 공식 근거
 

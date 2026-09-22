@@ -51,4 +51,7 @@
 5. 기존 공급 종료 안내와 복귀할 revision 보존
 
 원본 저장소 삭제나 기존 Git 이력 병합은 이관의 필수 조건이 아님
-2026-09-22 확인한 원본 workspace-rules는 private이고 대상 developer-skills는 public이므로 공개 범위 결정 전에는 원격 이관 보류
+2026-09-22 원본 workspace-rules의 private 상태와 대상 tttaliesin/developer-skills의 public 상태 재확인
+사용자의 민감정보 검사 후 공개 push 요청으로 공개 범위 확정
+최종 파일과 미전송 커밋 이력 검사, 원격 SHA 일치 확인을 전달 조건으로 적용
+기존 정책 공급 종료와 제품 참조 전환은 별도 후속 작업
