@@ -56,7 +56,8 @@ try {
   report = { status: 'PASS', browser: browser.version(), ...received, unique_frames: unique,
     decoded_delta: last.decoded - first.decoded, bytes_delta: last.bytes - first.bytes };
 } catch (error) {
-  report = { status: /Executable doesn't exist/.test(error.message) ? 'BLOCKED' : 'FAIL',
+  const launchBlocked = !browser && /Executable doesn't exist|EACCES|EPERM|access.*denied|permission denied/i.test(error.message);
+  report = { status: launchBlocked ? 'BLOCKED' : 'FAIL',
     reason: error.message };
 } finally {
   if (browser) await browser.close();
