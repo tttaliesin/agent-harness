@@ -15,7 +15,10 @@
 Codex가 스킬을 읽고 제품의 기존 명령 실행
 npx skills는 설치·갱신 도구이며 공통 실행 서비스·제품 Adapter 요구 없음
 제품의 Taskfile·npm·Go·Python 검사 본문 유지
-OpenSpec 사용 시 제품 명세를 기준으로 삼고 별도 change YAML 추가 제외
+원문 구축 대상에는 OpenSpec 7개와 제품 명세 흐름 연결 필요; 현재 실제 연결 미완료
+Web·Python·Streaming 기능과 두 실행 예제도 미완료 상태로 유지
+상세 책임과 완료 조건은 [원문 요구 대조](requirements-coverage.md) 참조
+제품 명세를 기준으로 삼고 별도 change YAML 추가 제외
 
 ## 기존 구성 정리
 

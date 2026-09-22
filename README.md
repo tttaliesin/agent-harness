@@ -4,6 +4,9 @@ Codex에서 필요한 개발 지침을 골라 쓰는 공통 스킬 모음
 설계·디버깅·리뷰·Git·문서 작업의 지침과 필요한 보조 자료를 `npx skills`로 설치
 실제 작업은 Codex와 제품의 기존 빌드·검사 명령으로 수행
 
+현재 공급은 범용 스킬 19개까지 구성된 상태이며, OpenSpec 전체 작업 흐름·Web/Python/Streaming 기능과 실행 예제 보완은 미완료
+기능별 상태와 다음 순서는 [원문 요구 대조](docs/implementation/requirements-coverage.md) 참조
+
 ## 첫 사용
 
 Node.js·npx와 GitHub 접근 가능한 환경 필요
