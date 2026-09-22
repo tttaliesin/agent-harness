@@ -1,0 +1,17 @@
+{
+  "platform": "windows-amd64",
+  "mediamtx": {
+    "version": "1.15.6",
+    "url": "https://github.com/bluenviron/mediamtx/releases/download/v1.15.6/mediamtx_v1.15.6_windows_amd64.zip",
+    "sha256": "3e9895cfb38c50ab827aa0be3324e13b16b72d210d6c14e1e8dbb2e8fdb79cef",
+    "release": "https://api.github.com/repos/bluenviron/mediamtx/releases/tags/v1.15.6",
+    "executable": "mediamtx/mediamtx.exe"
+  },
+  "ffmpeg": {
+    "version": "8.0",
+    "url": "https://github.com/GyanD/codexffmpeg/releases/download/8.0/ffmpeg-8.0-essentials_build.zip",
+    "sha256": "647e467caf82b9fa200a562769b5ff4d736aaf725804ed2c64ea9752106fa569",
+    "release": "https://api.github.com/repos/GyanD/codexffmpeg/releases/tags/8.0",
+    "executable": "ffmpeg/ffmpeg-8.0-essentials_build/bin/ffmpeg.exe"
+  }
+}

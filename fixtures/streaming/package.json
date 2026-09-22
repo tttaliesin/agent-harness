@@ -1,0 +1,9 @@
+{
+  "name": "streaming-receive-fixture",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "playwright": "1.58.2"
+  }
+}

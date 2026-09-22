@@ -1,0 +1,37 @@
+# MediaMTX v1.15.6. Tokens are replaced only with task-local ports and a random path.
+logLevel: info
+logDestinations: [stdout]
+readTimeout: 5s
+writeTimeout: 5s
+api: true
+apiAddress: 127.0.0.1:{api}
+apiAllowOrigins: []
+metrics: false
+pprof: false
+playback: false
+rtsp: true
+rtspTransports: [tcp]
+rtspAddress: 127.0.0.1:{rtsp}
+rtmp: false
+hls: false
+srt: false
+webrtc: true
+webrtcAddress: 127.0.0.1:{http}
+webrtcAllowOrigins: ["http://127.0.0.1:{http}"]
+webrtcLocalUDPAddress: 127.0.0.1:{udp}
+webrtcLocalTCPAddress: ''
+webrtcIPsFromInterfaces: false
+webrtcAdditionalHosts: [127.0.0.1]
+webrtcICEServers2: []
+authInternalUsers:
+  - user: any
+    ips: [127.0.0.1]
+    permissions:
+      - action: publish
+        path: {stream}
+      - action: read
+        path: {stream}
+      - action: api
+paths:
+  {stream}:
+    source: publisher
