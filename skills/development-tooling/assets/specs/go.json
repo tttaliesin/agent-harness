@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "mise_version": "2026.8.10",
+  "tools": {
+    "go": "1.25.1"
+  },
+  "modules": [
+    {
+      "name": "service",
+      "kind": "go",
+      "path": ".",
+      "commands": {
+        "lint": [
+          "tooling_unformatted=$(gofmt -l .) && test -z \"$tooling_unformatted\"",
+          "go vet -mod=readonly ./..."
+        ],
+        "format": [
+          "gofmt -w ."
+        ],
+        "test": [
+          "go test -mod=readonly ./..."
+        ],
+        "build": [
+          "go build -mod=readonly ./..."
+        ]
+      }
+    }
+  ]
+}

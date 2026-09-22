@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "mise_version": "2026.8.10",
+  "tools": {
+    "go": "1.25.1",
+    "node": "22.18.0",
+    "pnpm": "10.15.0"
+  },
+  "modules": [
+    {
+      "name": "api",
+      "kind": "go",
+      "path": "apps/api",
+      "commands": {
+        "lint": [
+          "tooling_unformatted=$(gofmt -l .) && test -z \"$tooling_unformatted\"",
+          "go vet -mod=readonly ./..."
+        ],
+        "format": [
+          "gofmt -w ."
+        ],
+        "test": [
+          "go test -mod=readonly ./..."
+        ],
+        "build": [
+          "go build -mod=readonly ./..."
+        ]
+      }
+    },
+    {
+      "name": "ui",
+      "kind": "node",
+      "path": "apps/ui",
+      "commands": {
+        "lint": [
+          "pnpm run lint"
+        ],
+        "format": [
+          "pnpm run format"
+        ],
+        "test": [
+          "pnpm run test"
+        ],
+        "build": [
+          "pnpm run build"
+        ],
+        "dev": [
+          "pnpm run dev"
+        ]
+      }
+    }
+  ]
+}

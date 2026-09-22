@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "mise_version": "2026.8.10",
+  "tools": {},
+  "modules": [
+    {
+      "name": "rules",
+      "kind": "custom",
+      "path": ".",
+      "commands": {
+        "test": [
+          "python3 -B tests/test-sync-skills.py"
+        ],
+        "lint": [
+          "python3 scripts/sync-skills.py --check"
+        ]
+      }
+    }
+  ]
+}

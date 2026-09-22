@@ -1,0 +1,4 @@
+interface:
+  display_name: "Development Tooling"
+  short_description: "Apply consistent workspace toolchains and task templates"
+  default_prompt: "Use $development-tooling to design or apply the workspace tooling profile for this repository."

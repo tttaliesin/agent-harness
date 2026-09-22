@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Governance"
+  short_description: "Apply workspace category and ownership rules"
+  default_prompt: "Use $workspace-governance to classify this workspace change and identify the applicable rules."

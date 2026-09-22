@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "mise_version": "2026.8.10",
+  "tools": {
+    "python": "3.13.7",
+    "uv": "0.8.15"
+  },
+  "modules": [
+    {
+      "name": "python",
+      "kind": "python",
+      "path": ".",
+      "commands": {
+        "lint": [
+          "uv run --no-sync ruff check .",
+          "uv run --no-sync ruff format --check ."
+        ],
+        "format": [
+          "uv run --no-sync ruff format ."
+        ],
+        "test": [
+          "uv run --no-sync pytest"
+        ]
+      }
+    }
+  ]
+}

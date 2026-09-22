@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace GitHub Actions"
+  short_description: "Build workflows under workspace CI/CD rules"
+  default_prompt: "Use $github-actions-workflows to design, edit, review, or diagnose this workflow using the workspace CI/CD policy."
