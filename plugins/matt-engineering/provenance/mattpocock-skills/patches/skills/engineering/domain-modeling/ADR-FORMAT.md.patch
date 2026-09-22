@@ -1,0 +1,11 @@
+--- skills/engineering/domain-modeling/ADR-FORMAT.md
++++ plugins/matt-engineering/skills/domain-modeling/ADR-FORMAT.md
+@@ -1,6 +1,7 @@
+ # ADR Format
+ 
+-ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
++Use the existing decision format and location, including OpenSpec design documents.
++When no established location exists and an ADR is appropriate, ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
+ 
+ Create the `docs/adr/` directory lazily: only when the first ADR is needed.
+ 

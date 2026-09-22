@@ -1,0 +1,3 @@
+* -text
+# Preserve Git object bytes and required unified-diff context whitespace.
+provenance/** -whitespace

@@ -1,0 +1,1920 @@
+tree 3c7f2d3ef243f88d3394158983e6845e313c438b
+parent b36e0829c6d0140e93cfef2ca599b1b07d4a7797
+author Jesse Vincent <jesse@primeradiant.com> 1789777895 -0700
+committer GitHub <noreply@github.com> 1789777895 -0700
+gpgsig -----BEGIN PGP SIGNATURE-----
+ 
+ wsFcBAABCAAQBQJqrdfoCRC1aQ7uu5UhlAAAQc8QAJxTLt0M+b7pIIoTqpNHHwiS
+ NdxZW9/ZCZBLxvAD3x3K832kpxY74CcZdQL+DYzPPxr+L19UkVq3FfFhWYszioNX
+ pEXAj/Vzcu+24l73XpVwFph6E8g2xeQeKf4UVRgUaQXTQplzk2S5aM2fU3ew03pK
+ T0IX/z7ZPgJyzxdjixYaqKvd/J4ThN8EN0JVoRXSFKQIceo2XdEUXidQVKoh3g3B
+ jdVe8deBcPZvHRZ84VpjHhw8xgxndamt9Zt6+R2Esmi438n3r4edGcybuJXYQJN2
+ nYsqptQfYjPeIJORpzT5D80G8Lm1PwLM3tUOMMo8RVMRJBDy5Jcv5mQpIYI59ObR
+ mIQHTzE0XCz5FW9OalfFf0U7kJ+US2yLopQENG6SBJKIq7lq4iQ6+7nXK5xNobMX
+ WpAsPkbo8iHqNvuZwUI6HtKk/Q46qC7h2utRonSOETHOC6QHYzJfyfFymM+JWsl8
+ ZERYTGQTFEOrUr04iyU71A5/hKSQHE8sy8ZUUdPSCb59KrWz92Tjp5+ppQlBY8gB
+ 7dKlkge6vXHuewINDskbcwBeBlNoj9Cp3eF/UXbmL7Qr75z8H/JUiB+dasJ4SGSY
+ JGBFC4FsVmIDKezmCJ1TDAwkzCK1HsBB7KNOJW2SECQ2KUM9meCDmUP/oNI3Xzmb
+ FV+rbLZKFXR8bVT7UfOc
+ =7aqw
+ -----END PGP SIGNATURE-----
+ 
+
+Release v6.4.1: diagnosing-superpowers, Native plan execution, OpenCode 2.0 and Muse support (#2338)
+
+* fix(codex): suppress SessionStart hook auto-discovery with empty hooks object
+
+Codex auto-discovers a plugin's hooks/hooks.json whenever the Codex
+manifest has no `hooks` field: load_plugin_hooks falls back to a
+hardcoded DEFAULT_HOOKS_CONFIG_FILE = "hooks/hooks.json" and registers
+it. hooks/hooks.json is the Claude Code SessionStart hook, it is tracked
+in this repo, and the Codex marketplace installs the whole repo root
+(source url "./"), so the fallback re-registered the SessionStart hook
+and its install-time trust prompt on Codex.
+
+Removing the Codex hook file and the manifest `hooks` pointer (commit
+"Remove Codex hooks") did not disable the hook on Codex — it removed the
+explicit declaration that was overriding the fallback, so the fallback
+took over and found the Claude hooks/hooks.json.
+
+Declare an empty inline hooks object ({}) in .codex-plugin/plugin.json.
+It parses as an empty inline hook set and stops Codex reaching the
+auto-discovery fallback. An absent field, an empty array ([]), and an
+empty inline list all collapse back to the fallback, so the value must
+be exactly {}.
+
+Update the test to assert the manifest declares hooks: {} (and that
+hooks/hooks.json exists, which is what makes the declaration necessary),
+replacing the prior assertion that the field was absent — which passed
+while the hook was still being auto-discovered.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+
+* Add Codex portal package script
+
+* Harden Codex package script checks
+
+* Default Codex portal package to zip
+
+* Fix Codex plugin category
+
+* chore(codex): remove orphaned session-start-codex hook + refresh hook docs
+
+hooks/session-start-codex has had no caller since "Remove Codex hooks"
+(#1845) deleted hooks-codex.json and its manifest registration; the
+Codex manifest now declares an empty hooks object so Codex registers no
+session-start hook at all. The script is Codex-specific dead code —
+nothing executes it on Codex or any other harness.
+
+- Delete hooks/session-start-codex.
+- tests/hooks/test-session-start.sh: drop the two Codex cases that are
+  redundant with the generic session-start tests (nested-format and the
+  legacy-warning omission are already covered by the Claude Code cases).
+  Re-point the "wrapper dispatches" case to the live `session-start`
+  script so run-hook.cmd dispatch coverage — used by Claude Code and
+  Cursor in production — is preserved rather than lost.
+- docs/porting-to-a-new-harness.md: Codex is no longer a Shape A
+  (shell-hook) harness, so re-anchor that worked example to Cursor (a
+  live shell-hook harness that demonstrates the same per-harness field,
+  schema, and matcher variance) and mark Codex as native skill discovery
+  with no session-start hook. Clears the references to the deleted
+  hooks-codex.json.
+- docs/windows/polyglot-hooks.md: the "check hooks-codex.json" pointer
+  referenced a file deleted in #1845; re-point to hooks-cursor.json.
+
+RELEASE-NOTES.md keeps its historical mention of hooks-codex.json (it
+accurately records what that release did). The tests/codex-plugin-sync
+fixtures build their own synthetic session-start-codex and test the sync
+mechanism generically, so they are intentionally left as-is.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+
+* docs: re-anchor Shape A examples away from Codex
+
+* Strip hooks from Codex portal package
+
+* Preserve hooks in Codex package manifest
+
+* Release v6.1.1: fix Codex SessionStart hook re-registration, add Codex portal packaging
+
+* Revert "Remove Gemini CLI support"
+
+This reverts commit 711d895ce736cbcc5fb0c219ea3f49277f17fa8c.
+
+* refactor(skills): fold Integration skill lists into points of use
+
+The list-style Integration sections in subagent-driven-development and
+executing-plans duplicated references that already exist where the flow
+uses them (process digraph, When to Use, prompt templates, Step 3), so
+they added maintenance cost without carrying behavior. The one entry not
+duplicated anywhere — the using-git-worktrees isolated-workspace
+requirement — moves to its point of use: SDD's Pre-Flight Plan Review and
+executing-plans' Step 1. Micro-tested 5/5: controllers at skill start
+establish or verify the worktree before reading the plan or dispatching
+Task 1, including under skip-the-ceremony pressure. The prose Integration
+sections in requesting-code-review and other skills are unchanged — they
+carry placement content, not an index.
+
+* refactor(skills): fold systematic-debugging Related-skills block into Phase 4
+
+Same treatment as subagent-driven-development and executing-plans: the
+test-driven-development entry duplicated the reference already at Phase 4
+Step 1, and the verification-before-completion entry was a sole carrier —
+it moves to its point of use in Phase 4 Step 3 (Verify Fix). Micro-tested
+2/2: subjects at the just-implemented-a-fix point invoke
+verification-before-completion before any success claim, including under
+ship-pressure.
+
+* refactor(skills): stop offering to discard work in finishing-a-development-branch
+
+The completion menu dates from when throwing away branches was routine;
+offering 'Discard this work' beside 'Merge' on every completion advertised
+destroying finished, passing work. The menu is now 3 options (2 detached
+HEAD); discard survives as an explicit-request-only path with the same
+typed-confirmation ritual and cleanup mechanics. Fresh-eyes fixes in the
+same pass: Option 2 actually creates the pull/merge request
+(platform-neutral tooling) and reports the URL; Step 3's base-branch
+detection drops a command that printed a SHA instead of choosing a branch
+(ask when not known); Option 1 gains a failure branch (merged-result test
+failures stop cleanup); description trimmed to trigger-only. Micro-tested
+4/4: both menus verbatim with no discard, no discard offer even when the
+human sounded lukewarm about the feature, and a prose 'throw it all away'
+still required the typed confirmation before any deletion.
+
+* refactor(skills): make PR creation forge-agnostic in finishing-a-development-branch
+
+Naming gh and glab implicitly blessed two forges; Gitea, Forgejo,
+Bitbucket and others are equally valid. Point at the forge's CLI or the
+creation URL printed on push instead of naming tools.
+
+* refactor(skills): compress finishing-a-development-branch, adopt rationalization table
+
+Red Flags and Common Mistakes fold into one Common Rationalizations table
+(house Excuse/Reality form); every prior entry maps to a table row or an
+inline sentence in the step it guards. Instructions rephrase positively —
+what to do rather than what to avoid — with negations remaining only in
+statements of fact. Workflow prose tightens throughout; menus, detection
+mechanics, cleanup provenance, and the typed-discard ritual are unchanged.
+Re-verified 4/4 after the rewrite: both menus verbatim, the lukewarm-human
+pressure arm cited the rationalizations table when declining to offer
+discard, and a prose discard request still required the literal typed
+word.
+
+* fix(skills): capture worktree path before Step 5 changes directory
+
+Step 6 recomputed WORKTREE_PATH after Option 1 and discard had already
+cd'd to the main repo root, so --show-toplevel returned the main root:
+the provenance check could never match, cleanup silently no-oped, and the
+branch delete failed with the worktree still attached. A test subject had
+to deviate from the literal skill to produce a working sequence. The
+capture moves to Step 2 (still inside the workspace); Step 6 consumes
+Step 2's values and drops its redundant recompute and MAIN_ROOT
+derivation. Also: Option 2 gains the detached-HEAD push variant its menu
+advertises, and the stale-green rationalization row states what a green
+run proves instead of asserting the tree changed. Re-verified: merge-flow
+and discard-flow subjects both walk the literal skill to correct cleanup
+with concrete paths and no deviations.
+
+* refactor(skills): reframe testing-anti-patterns as writing-good-tests
+
+The disclosure doc becomes a catalog of what to do: six positively named
+rules (assert on real behavior, cleanup in test utilities, mock at the
+right level, mirror real data, tests ship with implementation, prefer
+real components), each leading with the GOOD example and keeping the
+violation as contrast. Iron Laws, gate functions, human-partner lines,
+and warning signs all survive; The Bottom Line recap and the
+TDD-prevents-these section fold into one Overview sentence. SKILL.md's
+pointer moves into the Good Tests section it belongs with. Micro-tested
+2/2: a mock-existence assertion got rewritten to a real-behavior
+assertion citing Rule 1, and a test-only teardown method plus a
+to-be-safe mock were both rejected citing Rules 2 and 3.
+
+* fix(skills): broaden writing-good-tests trigger to any test writing
+
+The pointer fired only on adding mocks or test utilities; the doc's own
+load-when line already says writing or changing tests. The narrow trigger
+would skip the rules exactly when an agent thinks no mocks are involved.
+
+* feat(skills): absorb falsifiability discipline into writing-good-tests
+
+Generalized from agentsview's testing-without-tautologies skill: a new
+Iron Law and lead rule (name the production change that would fail the
+test, derive expectations independently of the code under test), a
+test-your-code-not-the-framework rule with the characterization-test
+exception and the trivial-code guidance, branch-specific doubles folded
+into Mock at the Right Level, a closing Mutation Check, and six new
+warning-sign smells. Rule 1 carries the string-presence trap by name:
+grep-style tests on scripts, skills, and prompts counterfeit
+falsifiability — the observable is the artifact's behavior, never its
+text — with a hard stop in the gate function. Repo-specific content
+(testify, backend parity, test-level ladder) stays in the source skill.
+Micro-tested: 3/3 tautology verdicts with correct rule citations and the
+mutation check named unprompted; a RED-pressure subject refused the
+10-second grep test and wrote a behavioral one citing the trap.
+
+* fix(skills): close the change-detector hole in writing-good-tests
+
+Fresh-eyes review found falsifiable-but-worthless tests passed every
+rule: a constant assertion can fail, uses a literal, mocks nothing — and
+protects nothing, firing on intentional decisions while sleeping through
+bugs. Rule 1 gains the what-break-would-this-catch question (absorbed
+from the source skill's quality gate, missed in the first pass) with a
+gate stop for change detectors; Rule 6's trivial-code list regains
+constants; Rule 7 gains the release valve that trivial-only changes earn
+no ceremonial test; the coverage-theater and change-detector smells join
+Warning Signs; the Rule 6 example stops modeling exact-copy brittleness.
+Micro-tested: under a tests-with-every-PR norm, a subject rejected both
+draft constant tests citing the new gate and replaced them with a test of
+the retry behavior the constant controls.
+
+* refactor(skills): compress writing-good-tests additions; doc changes earn no tests
+
+Prose additions from the last two passes tightened to the terse guard
+form: change-detector rule, string-presence trap, and Rule 7's release
+valve each drop to a few sentences. Rule 7 now settles the jurisdiction
+question outright: trivial code and human prose earn no test; skills and
+prompts are pressure-tested per writing-skills when edits change
+behavior, never text-asserted. Micro-tested: a subject with a README
+rewrite plus a skill typo fix, under tests-with-every-PR pressure,
+shipped zero tests — declining the string assertions and the ceremonial
+subagent pressure-test alike.
+
+* experiment: ground-up two-principle rewrite of writing-good-tests
+
+Re-derived from scratch: every rule becomes a corollary of two principles
+(every test names the break it catches; every test exercises the real
+thing), one consolidated gate per principle, four example pairs kept, the
+rest carried by prose. Scratch branch for comparison against the accreted
+eight-rule version.
+
+* refactor(skills): drop social proof from dispatching-parallel-agents
+
+Real-World Impact restated the Real Example from Session as statistics;
+Key Benefits and the time-saved line sold the skill to a reader already
+executing it. Instructions unchanged.
+
+* refactor(skills): drop social proof from systematic-debugging
+
+Real-World Impact was statistics; the Overview opener restated the core
+principle as motivation. The 95%-of-no-root-cause line stays: it guards
+the bail-out point, which is rationalization control, not social proof.
+Supporting Techniques/Related skills untouched (PR #1932 owns that).
+
+* refactor(skills): drop persuasion sections from verification-before-completion
+
+Why This Matters (failure-memory testimonials), the dishonesty reframing
+in the Overview, and The Bottom Line recap all restate stakes the Iron
+Law, gate function, and rationalization table already enforce. This is
+the eval-gated class: the bet is that discipline holds without the
+persuasion prose — evals on this branch decide.
+
+* refactor(skills): trim quality claim from executing-plans subagent note
+
+The tell-your-partner directive and the prefer-SDD instruction stay; the
+significantly-higher-quality sentence restated them as a claim.
+Integration section untouched (PR #1932 owns it).
+
+* refactor(skills): drop Advantages section from subagent-driven-development
+
+Five blocks of benefits and cost/benefit selling aimed at a reader who
+has already invoked the skill; the vs-Executing-Plans comparison also
+duplicates the one under When to Use. Integration section untouched
+(PR #1932 owns it).
+
+* refactor(skills): trim requesting-code-review, keep review guards as a table
+
+Integration with Workflows restated the When to Request Review triggers
+grouped by caller (each-task / before-merge / when-stuck all appear at
+point of use) — detritus, so it goes.
+
+The intro's crafted-context sentence guarded two things at once, so keep
+both as Common Rationalizations rows (house Excuse/Reality form) rather
+than deleting the sentence. The skill's reader is the coordinator, not
+the code's author:
+
+- Don't review the diff inline — that burns the coordinator's context
+  window; dispatch a subagent so the diff and evaluation live in its
+  context and only findings return. ("preserves your own context for
+  continued work")
+- Don't hand the reviewer your session history — crafted context keeps it
+  on the work product, not your thought process.
+
+* refactor(skills): convert using-git-worktrees guard sections to rationalization table
+
+Common Mistakes and Red Flags restated Steps 0-3 wholesale; both fold
+into one Common Rationalizations table (house Excuse/Reality form) whose
+five rows carry the tempting-thought version of each rule, including the
+#1-mistake emphasis on bypassing native tools. Quick Reference stays as
+the compact decision aid.
+
+* refactor(skills): fold brainstorming Key Principles into points of use
+
+Five of six principles restated the Checklist and Process sections
+verbatim-in-spirit. The sixth, YAGNI, appeared nowhere else — it moves to
+the Exploring approaches list where designs get shaped; the recap section
+goes.
+
+* refactor(skills): drop Remember recap from writing-plans
+
+All four lines restate the Overview (DRY/YAGNI/TDD/frequent commits),
+Task Structure (exact paths, commands with expected output), and No
+Placeholders (complete code in every step).
+
+* refactor(skills): drop The Bottom Line recap from writing-skills
+
+Restates the Iron Law, the RED-GREEN-REFACTOR mapping, and the
+TDD-for-docs framing, all stated in full earlier in the file.
+
+* refactor(skills): drop The Bottom Line recap from receiving-code-review
+
+Restates the evaluate-don't-obey frame, verification rule, and
+no-performative-agreement rule, each detailed earlier at point of use.
+The Common Mistakes table stays: it is the skill's one compact guard
+table, the class this cleanup standardizes toward rather than deletes.
+
+* refactor(skills): fold TDD Why Order Matters rebuttals into rationalization table
+
+The eval verdict on this cut: deleting Why Order Matters and trusting the
+compressed one-line table rows measurably degrades test-first behavior under
+the exact pressure the section rebutted ("just write it, tests after") —
+control 8/10 → treatment 5/10 at n=10, corroborated on both Claude and Codex.
+Normal TDD triggering did not move (PPPPP → PPPPP both arms); the damage is
+purely the pressure case.
+
+So instead of trusting the compressed rows, fold the section's five prose
+rebuttals into their Common Rationalizations rows so each row carries the
+argument, not just the excuse label:
+
+- "I'll test after" — passing immediately proves nothing (wrong thing /
+  implementation-not-behavior / missed edge; you never saw it fail).
+- "Already manually tested" — ad-hoc, no record, can't re-run, forgotten
+  under pressure.
+- "Deleting X hours is wasteful" — sunk cost; rewrite-high-confidence vs
+  bolt-tests-on-after-low-confidence.
+- "TDD will slow me down" — TDD is the pragmatic path; shortcuts mean
+  debugging in production.
+- "Tests after achieve same goals (spirit not ritual)" — what-does vs
+  what-should; biased by the code you wrote; coverage without proof.
+
+Still removes the 50-line section (~200 words / 45 lines net); the
+arguments survive where an agent hits them mid-rationalization. Revalidate
+with the tdd-holds-under-tests-later-pressure probe before merge.
+
+* test: realign antigravity + pi mapping assertions with pruned references
+
+Commit e7ddc25 ('Prune per-harness tool-mapping boilerplate') deliberately
+removed the skill-loading explainers and generic action->tool tables from
+antigravity-tools.md and pi-tools.md, keeping only the harness-specific
+notes (subagent dispatch, task tracking). It did not touch tests/, so two
+content-assertion tests kept asserting the removed tokens and now fail on
+both dev and main:
+
+  - tests/antigravity/test-antigravity-tools.sh: asserted view_file,
+    IsSkillFile, run_command, grep_search (all pruned)
+  - tests/pi/test-pi-extension.mjs: asserted read/write/edit/bash (pruned)
+
+Update both to assert only the surviving harness-specific mappings. No
+reference or skill content is changed; only the stale test assertions.
+
+* test(pi): scope mapping assertions to the table, not whole file
+
+The pi tokens (subagent, pi-subagents, Task, TODO.md) also appear in the
+surrounding prose, so matching the whole file passed even with the mapping
+table deleted — the exact regression this test exists to catch. Filter to
+table rows (lines starting with '|') so the assertion fails when the table
+is gone and passes on dev.
+
+Reported by @muunkky on #1987 (approach from #1983); verified failing-first
+by stripping the table rows from pi-tools.md.
+
+* docs: fix dead references to pruned claude-code-tools.md/copilot-tools.md
+
+e7ddc25 deleted claude-code-tools.md and copilot-tools.md but left
+writing-skills and the porting guide's reference-integration table
+pointing at them. State the current architecture instead: Claude Code's
+personal-skills path inline, and "no adapter file needed" for the
+harnesses that ride the Claude Code-compatible tool surface.
+
+Reported by @rasibintang (#1969, with a fix proposed in #1970).
+
+Fixes #1969
+
+* docs(brainstorming): correct Copilot CLI backgrounding guidance for Windows
+
+* docs(specs): SDD plan-scoped workspace design
+
+The .superpowers/sdd workspace has no plan identity and no end-of-life:
+follow-up plans in the same worktree read the previous plan's ledger as
+their own progress, and artifacts leak into git (observed in serf, three
+contamination rounds and ad-hoc progress-p2/p3 workarounds). Structural
+fix: per-plan workspace subdirs, ledger names its plan, delete the
+workspace when the final review is clean.
+
+* docs(plans): SDD plan-scoped workspace implementation plan
+
+Five tasks: RED baseline eval (writing-skills Iron Law — before any
+skill edit), plan-scoped scripts via TDD, SKILL.md durable-progress
+rewrite with mismatch guard and end-of-plan cleanup, GREEN eval with
+refinement loop, consistency sweep. Eval = 5 fresh sonnet subagents per
+scenario per arm, hand-scored.
+
+* docs(plans): fixture v2 — real cited commits, matched task counts
+
+Fixture v1 tripped the Task 1 STOP gate for the right reason: its
+ledgers cited fabricated hashes, so RED agents dismissed them via git
+forensics (S1 passed for the wrong mechanism, the S2 resume control
+failed 5/5). v2 executes plan A's tasks as real commits, gives both
+plans five tasks so numbering is ambiguous, adds a symmetric
+resume-uncertainty line to the scenario prompt, hard-stops if the S2
+control fails twice, and drops rm -rf from cleanup (hook-gated here).
+
+* docs(plans): re-scope eval per maintainer decision — RED compiled, GREEN measures cost
+
+Three RED rounds (25 reps, three framings incl. faithful compaction
+resume) never reproduced blind stale-ledger adoption: sonnet controllers
+forensically refuse foreign ledgers, spending 6-13 tool calls per resume
+doing it. Jesse approved shipping the full change with the eval re-scoped
+to what is true: Task 1 compiles the existing RED evidence, Task 4 runs
+GREEN on a truthful v3 fixture (real implementations, rotating authors)
+with an S2 released-text control, measuring regression safety and the
+disambiguation-cost delta instead of an error rate.
+
+* docs(specs): record eval re-scope — blind adoption did not reproduce, claims narrowed
+
+25/25 baseline reps refused the stale foreign ledger via git forensics;
+the spec's evaluation section now states the honest claims: structural
+fix + measured disambiguation-cost delta + same-plan-resume regression
+gate, shipping with explicit maintainer sign-off in place of a failing
+S1 baseline.
+
+* eval(sdd): RED baseline — 25/25 controllers refuse stale ledgers, at a forensic cost
+
+* feat(sdd): plan-scoped workspace — one .superpowers/sdd/<plan> dir per plan
+
+sdd-workspace now requires the plan file and resolves
+.superpowers/sdd/<plan-basename>/; task-brief and review-package write
+into their plan's directory (review-package gains PLAN_FILE as its first
+argument). Follow-up plans in the same working tree can no longer collide
+with a previous plan's briefs, reports, or ledger.
+
+* feat(sdd): plan-scoped durable progress — ledger names its plan, workspace dies at plan end
+
+The start-of-skill ledger check is now scoped to the plan's own
+workspace and keyed to the ledger's first line. Baseline eval (25/25
+reps) showed controllers already refuse foreign ledgers — at a cost of
+6-13 tool calls of cross-plan forensics per resume; plan-scoping makes
+the answer structural instead. The workspace is deleted once the final
+review is clean — git history is the durable record.
+
+* eval(sdd): GREEN results — plan-scoped resolution replaces cross-plan forensics
+
+* chore(sdd): consistency sweep for plan-scoped workspace signatures
+
+* fix(hooks): dispatch the SessionStart hook via Git Bash on Windows
+
+The SessionStart command string starts with a quoted path, which breaks
+both Windows shells Claude Code may hand it to: PowerShell parses the
+leading quoted string as an expression and dies on the next bareword
+('Unexpected token session-start', #1751), and cmd.exe's /c quote rule
+drops the outer quotes when the path contains a metacharacter, so a
+profile dir like C:\Users\Name(External) truncates the command at the
+'(' (#1918). Either way the bootstrap silently never loads.
+
+Declare shell: "bash" on the hook. Claude Code >= 2.1.81 then resolves
+Git for Windows and runs the polyglot's bash path directly — the same
+route it already picks when it detects Git Bash — and when Git Bash is
+missing it surfaces an actionable install prompt instead of a parser
+error. Older versions ignore the unknown key and behave exactly as
+before (verified live on 2.0.77 and 2.1.80).
+
+Verified end-to-end with real claude sessions: Linux (hook fires,
+bootstrap injected), Windows 11 + Git Bash under a path containing
+'(' and a space (fires, 3276-char context), and Windows 11 without
+Git Bash (actionable error replaces the #1751 ParserError, reproduced
+verbatim as control).
+
+Fixes #1751
+Fixes #1918
+
+* docs(windows): document shell:bash hook dispatch and the PowerShell/CMD fallback hazards
+
+* fix(codex): make package script and its test portable beyond macOS/bsdtar
+
+The packaging pipeline only worked on a Mac with default umask, for
+three stacked reasons:
+
+- The deterministic-metadata tar flags (--uid/--gid/--uname/--gname)
+  are bsdtar spellings; GNU tar rejects them, so the tar.gz archive
+  step died on Linux. Detect the tar flavor and use --owner=:0
+  --group=:0 --numeric-owner on GNU tar, which writes byte-identical
+  ustar headers (uid/gid 0, empty uname/gname).
+- Staged file modes depended on two umasks canceling out: git archive
+  masks entry modes with tar.umask (git default 0002 -> 775), and the
+  unflagged tar extraction re-masked with the process umask (022 on
+  macOS -> 755, but 002 elsewhere -> 775). Pin tar.umask=0022 on the
+  archive call and extract with -p so staged modes are canonical
+  755/644 on every machine.
+- The test's timestamp assertion parsed bsdtar's -tv column layout and
+  expected epoch 0 rendered in a US timezone ("Dec 31 1969"); GNU tar
+  uses different columns and UTC hosts render "1970-01-01". Assert
+  mtime == 0 via python3 tarfile instead, matching how the test
+  already checks zip timestamps.
+
+tests/codex/test-package-codex-plugin.sh now passes on Linux/GNU tar;
+the bsdtar branch preserves the exact flags that passed on macOS.
+
+* fix(tests): stop the SDD skill test flaking on timing and prose case
+
+tests/claude-code/test-subagent-driven-development.sh failed
+intermittently for two independent reasons:
+
+- Budget mismatch: the file runs 9 prompts with a 90s timeout each
+  (810s worst case) inside the runner's 600s per-file ceiling, so slow
+  backend days produced spurious timeouts. Raise the runner default to
+  900s and fix the help text, which claimed the default was 300.
+- Case-sensitive prose matching: the assert helpers grepped free-form
+  model output case-sensitively, but models capitalize the skill's own
+  headings — observed failures include "Do Not Trust the Report"
+  missing pattern "not trust" and a structured answer missing
+  "First:.*spec.*compliance". Match case-insensitively in
+  assert_contains/assert_not_contains/assert_count/assert_order, widen
+  two Test 5 keyword patterns to phrasings observed in real runs, and
+  make assert_order dump the output on failure the way assert_contains
+  already does, so the next flake is diagnosable.
+
+Observed 3 failures across 4 runs before the change (timeout, two
+distinct pattern misses); 3/3 consecutive full runs pass after it.
+
+* docs(specs): SDD fix-loop redesign design spec
+
+Review-fix loop gets resume-the-implementer semantics, scoped
+re-reviews, a five-round circuit breaker, and controller adjudication
+at trip. SKILL.md reorganizes by lifecycle; Red Flags converts to a
+rationalization table. Brainstormed with Jesse 2026-07-15.
+
+* docs(plans): SDD fix-loop redesign implementation plan
+
+Eight tasks across two repos: new re-review template, template/reference
+alignment, full SKILL.md lifecycle restructure with move map, two
+seeded-ledger fixture helpers, three quorum scenarios, and the RED/GREEN/
+regression live-run campaign.
+
+* feat(sdd): add scoped re-review prompt template
+
+* feat(sdd): align templates and codex reference with resume-based fix rounds
+
+* feat(sdd): lifecycle restructure with resume-based fix loop, five-round breaker, and rationalization table
+
+* docs(using-superpowers): drop dangling subagent-support anchor (#2010)
+
+The prune in e7ddc25e removed the `## Subagent support` section from
+antigravity-tools.md but left the inline cross-reference to it in the
+dispatch table, so `[Subagent support](#subagent-support)` resolves to
+nothing. An agent following the pointer to learn the difference between
+the `self` and `research` subagent types lands nowhere.
+
+Drop the dangling parenthetical. The guidance it pointed at survives in
+the same table cell -- `self` for full-capability work, `research` for
+read-only -- so no content is lost and the row still answers the
+question the removed section answered.
+
+gemini-tools.md carries the same cross-reference but retains its
+`## Subagent support` heading, so its link is valid and is left alone.
+
+* fix(systematic-debugging): match find -path ./ prefix in find-polluter.sh (#2011)
+
+find . emits ./-prefixed paths, so -path "src/**/*.test.ts" matched
+nothing; wc -l on empty stdin then lied as "Found 1". Fixes #2008.
+
+Co-authored-by: arimu1 <19286898+arimu1@users.noreply.github.com>
+Co-authored-by: Cursor <cursoragent@cursor.com>
+
+* fix(systematic-debugging): find-polluter accepts ./-prefixed patterns and matches top-level tests
+
+Follow-up to #2011 (which fixed the ./-prefix mismatch for the documented
+pattern form): strip a leading ./ from the caller's pattern instead of
+double-prefixing it into a never-matching ././ form, and also match the
+pattern with '**/' collapsed, since find -path cannot match '**/' against
+zero directory levels and silently skipped files directly under the base
+directory (src/top.test.ts vs src/**/*.test.ts).
+
+Adds a deterministic test suite for the script with a stubbed npm.
+
+* fix(finishing): check in with human partner when worktree removal hits untracked files
+
+git worktree remove refuses when the tree holds modified or untracked
+files, and the skill gave no guidance for that refusal — the natural
+agent response was --force, permanently destroying files that exist
+nowhere else (uncommitted plans, notes, scratch work). Reported twice
+from real sessions (#2016's plan loss, #1223's dirty-tree ambiguity).
+
+Step 6 now treats the refusal as a stop-and-ask moment: show the
+untracked files, offer commit / relocate / delete, and only remove the
+worktree after the human partner chooses. Adds a matching rationalization
+row so --force-as-cleanup is named as the failure it is.
+
+* feat(hermes): Hermes Agent harness support, rebased to a Hermes-only diff
+
+Rebase of PR #1922 onto current dev: the ~14 files of v6.1.0-era
+codex/release drift are dropped, the porting-guide edits (stale against
+the post-prune rewrite, no Hermes content) are dropped, and the Hermes
+surface is kept intact: .hermes-plugin/ (on_session_start bootstrap
+injection), tests/hermes/ (20 tests, passing), docs/README.hermes.md,
+references/hermes-tools.md, the Platform Adaptation row, README section,
+and Python ignores.
+
+Known open items from review, unchanged by this rebase: the injection
+mechanism uses ctx.inject_message from on_session_start, which the
+official plugin guide does not document (pre_llm_call returning
+{"context": ...} is the sanctioned path), skills are not registered via
+ctx.register_skill, and the acceptance transcript predates the fix.
+
+Co-authored-by: kumarabd <kumarabd@users.noreply.github.com>
+
+* fix(hermes): working bootstrap injection via pre_llm_call + native skill registration
+
+Empirical findings from the quorum eval bring-up (superpowers-evals
+docs/experiments/2026-07-23-hermes-target-bringup.md):
+
+- ctx.inject_message exists but returns False when called from
+  on_session_start — nothing reaches the model. The documented path,
+  a pre_llm_call hook returning {"context": ...} on is_first_turn,
+  verifiably delivers (probe model echoed an injected codeword).
+- ctx.register_skill requires a pathlib.Path; passing a str raises
+  AttributeError inside hermes, which silently disables the entire
+  plugin (no log line anywhere). This also means any exception in
+  register() is invisible — keep register() failure-proof.
+- Registered skills are namespaced by plugin name: models invoke
+  skill_view("superpowers:brainstorming") and receive the stock
+  SKILL.md — verified live on GLM 5.2, both install layouts.
+
+The plugin now: resolves skills/ for both the git-clone layout
+(.hermes-plugin/ and skills/ as siblings) and a flattened install,
+raising loudly when neither matches; registers every stock skill with
+Hermes' native loader (no per-harness skill copies); injects the
+using-superpowers bootstrap via pre_llm_call on the first turn; and
+sources the tool mapping from references/hermes-tools.md instead of
+duplicating it. Injected context is transient (API-call time only, never
+persisted in the session export) — verification of injection must be
+behavioral.
+
+* test(hermes): realign suite with the pre_llm_call mechanism; slim docs to the README section
+
+The 20-test suite still exercised the dead on_session_start/inject_message
+mechanism (17 failures against the rewritten plugin). Rewritten for the
+real contract: pre_llm_call registration + first-turn-only context return,
+register_skill receiving pathlib.Path (the conftest mock now raises on str,
+mirroring hermes' AttributeError that silently disables a plugin), both
+install layouts resolving skills, loud failure when skills are missing,
+tool mapping sourced verbatim from hermes-tools.md, and a bootstrap-size
+guard against hermes' 10k-char context spill threshold. 19 tests, passing.
+
+Install docs collapse into the README section per maintainer direction:
+docs/README.hermes.md and .hermes-plugin/INSTALL.md are gone; the README
+carries the two-line install plus the compaction caveat. plugin.yaml
+version aligned to 6.1.1.
+
+* Release v6.2.0: SDD plan-scoped workspace and resume-based fix loop, skills compression sweep, Windows SessionStart fix (#2026)
+
+Release notes for everything on dev since v6.1.1, plus the version bump
+to 6.2.0 across all seven declared manifest files (bump-version.sh,
+audit clean). Tagging and marketplace publication happen after the
+dev -> main merge.
+
+* docs: remove the "We're Hiring" section from the README
+
+The community engineer role has a candidate on trial, so the posting no
+longer needs to be at the top of the README.
+
+* feat(brainstorming): three-path router — ceremony scales, approval never does
+
+Spike / bounded / architectural classification said out loud, one-way
+upgrade ratchet, approval gate on every path. The measured pathology:
+the absolute hard-gate wording forced bounded tasks into the full
+two-document ritual 5/5 while a no-guidance control differentiated
+paths natively.
+
+* fix(sdd): implementers never dispatch subagents
+
+Depth-2 worker-spawned reviewers were 9/9 same-task duplicate reviews
+across four corpora in the codex-efficiency eval campaign.
+
+* fix(brainstorming): bounded-path approval is a hard stop
+
+Live ceremony battery: bounded reps produced zero doc ritual (the
+measured win) but 2/3 implemented before any approval turn; the
+bounded path now states the stop explicitly.
+
+* fix(codex): correct multi-agent guidance against Codex source
+
+Five claims contradicted by the Codex CLI source (V2 has no
+close_agent; followup_task always reaches a child; role files attach
+via agent_type; full-history forks accept model/effort; V2 spawn
+allowlist). Citations: superpowers-autoresearch
+docs/2026-07-29-codex-multiagent-v2-capabilities.md.
+
+* fix(sdd): reviewers never dispatch subagents either
+
+The first fix-cycle battery moved the depth-2 leak from implementers
+(9/9 baseline -> 0/6) to a final reviewer that spawned two
+sub-reviewers; the contract now reaches every dispatched role.
+
+* fix(brainstorming): bounded means existing code in this repo, not a familiar app genre
+
+Triggering battery: Claude Code classified a brand-new project bounded
+3/3 by reading 'existing, understood flow' as genre familiarity — once
+while explicitly noting the repo was empty. Gemini routed the same
+prompt architectural 3/3.
+
+* fix(codex): event-driven waiting instead of short polls
+
+60-78% of wait_agent calls timed out across every measured corpus;
+waits are event subscriptions, so one long wait replaces dozens of
+polls at identical wake latency.
+
+* fix(sdd): controllers wait long or not at all
+
+Docs-only wait guidance in the platform reference changed nothing
+(65.1% vs 67.1% baseline wait-timeout rate); the discipline now lives
+in the controller loop the session actually re-reads.
+
+* fix(sdd,codex): bounded wait stretches with reconciliation
+
+Round 2 proved the long-wait mechanism (65.1%->0.0% timeouts) but
+20-38 min silent waits starved graders and let 1/51 children vanish;
+bounded 5-10 min stretches with a status line and list_agents
+reconcile keep the efficiency and restore observability.
+
+* fix(codex): explicit model+effort on every spawn, config backstop
+
+Depth-2 child-issued spawns omitted model 2/2 at CLI 0.146; model
+without reasoning_effort resets effort to the model default.
+
+* docs: codex-efficiency fix-cycle spec and plan (campaign record)
+
+* fix(sdd): rule and continue — non-catastrophic conflicts get ledgered rulings, not blocking questions
+
+A donated session sat dormant 8h48m waiting for a plan-conflict answer
+that cost ~zero tokens to decide. Wrong-ruling rework is bounded;
+stalls are not. This encodes the never-stall doctrine: plan conflicts,
+ambiguities, and cap exceptions get a controller ruling recorded in
+the ledger and work proceeds; only irreversible/destructive actions,
+security-sensitive actions, out-of-worktree side effects (merge/push/
+publish), and totally-broken plans remain hard stops. Rulings surface
+in the Finish report instead of as mid-run questions.
+
+Evals: 3/3 no-stall vs control 3/3 stall-at-preflight on a
+seeded-conflict SDD plan; catastrophic guard 5/5 (every rep reaching a
+seeded DROP TABLE step refused it); re-validated 3/3 after rebase onto
+the current fix-PR text; composes cleanly with the evidence-bearing
+preflight treatment.
+
+Claude-Session: https://claude.ai/code/session_0185AJr98gHx5EmwqNeft4Sy
+
+* fix(sdd): batch small same-shape tasks into one dispatch
+
+Plans sometimes enumerate many tiny, same-shape edits (one-line fixes,
+constant changes, a field added across files) as separate tasks. The
+current loop dispatches a fresh implementer plus review per task, so a
+12-micro-task plan costs ~24 subagent seats for what one subagent could
+do in a single pass. In controlled evals on a micro-task plan, batching
+cut cost 73% and dispatches 87% with better completion than control; on
+a 5-non-trivial-task plan the rule correctly never batched (dispatch
+counts and completion identical to control).
+
+Claude-Session: https://claude.ai/code/session_0185AJr98gHx5EmwqNeft4Sy
+
+* fix(sdd): preflight emits its pairwise checks as a ledger table and rules on what it surfaces
+
+The pre-Task-1 conflict scan currently permits 'the scan is clean' with
+no evidence the scan happened — mined sessions show controllers skipping
+straight to dispatch and plan conflicts surfacing mid-execution as
+blocking questions. Requiring the scan to emit one row per task pair
+sharing a file/interface and one row per task's self-consistency turns
+the claim into an artifact; in controlled evals the table appeared 3/3
+with conflicts surfaced pre-dispatch, and the mechanism held 3/3 when
+composed with the never-stall ruling change (#2077).
+
+Claude-Session: https://claude.ai/code/session_0185AJr98gHx5EmwqNeft4Sy
+
+* fix(planning): the spec travels with the plan — Spec: header pointer + SDD reads it at setup
+
+In controlled evals, an identical seeded-incoherence plan yielded 0-1/5
+correct conflict resolutions when executed specless (controllers ruled
+the conflicts 'internally explained') and 4-5/5 with the spec merely
+present and named — even with no other skill-text changes. Cross-task
+coherence turns out to be adjudicable only against ground truth above
+the plan; this change makes that ground truth travel with the plan.
+
+Claude-Session: https://claude.ai/code/session_0185AJr98gHx5EmwqNeft4Sy
+
+* fix(sdd): one Ruling: token everywhere, exhaustive finish roll-up
+
+The breaker's two ledger formats wrote lowercase 'ruling' (parked
+findings, load-bearing adjudications), so the Finish section's
+collect-every-`Ruling:`-line step missed exactly the rulings made under
+the most pressure. Field evidence from an independent eval rep: a
+breaker-cap run adjudicated correctly, wrote everything to the
+plan-scoped ledger, deleted the workspace at finish, and left no durable
+trace of the adjudication.
+
+Capitalize the two breaker formats to the canonical token, and make the
+finish roll-up explicitly exhaustive across preflight, parked, and
+breaker rulings.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+
+* fix(sdd): batch reviews check the diff against the brief's file list
+
+Batching moves N edits under one review, which changes the review's
+failure profile: an implementer that silently skips one file of twelve
+produces a diff full of correct, uniform edits — nothing conspicuous is
+missing, and no seat in the pipeline was assigned to notice. The single
+combined review is the only net for a dropped edit, but the reviewer
+template never told it to count.
+
+The batch brief already lists every file with its change, so the reviewer
+reconciles the diff against that list file by file; a listed file with no
+hunk is a Missing finding regardless of how clean the rest of the batch
+looks. Conditional on a multi-file brief, so single-task reviews are
+unchanged.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+
+* fix(sdd): task reviewers re-read illegible evidence instead of re-running to regenerate it
+
+Interrogation of reviewers who bypassed test-evidence leases showed a
+convergent driver: when the report or receipt looked truncated or
+couldn't be located, re-running the suite felt cheaper than re-reading —
+evidence got regenerated instead of read. This paragraph names that
+moment: re-read at the stated path, report a genuine gap to the
+controller, and never re-run to regenerate what wasn't read.
+
+Battery: 0/31 reviewer re-runs across 4 treatment reps vs 7/~59
+reviewers in 5/8 control reps on the same scenario and classifier.
+
+Claude-Session: https://claude.ai/code/session_0185AJr98gHx5EmwqNeft4Sy
+
+* Moves Community up, and adds ToC.
+
+* chore(hermes): align plugin version with dev
+
+Update the Hermes plugin manifest from 6.1.1 to 6.2.0 so PR #2025 matches the current release version at the tip of origin/dev.\n\nThis intentionally does not change the version bump tooling. The existing release script supports JSON manifests only; YAML support will be handled separately on its own branch.
+
+* fix(writing-skills): run graphviz without a shell in render-graphs.js
+
+The `dot` availability check shelled out to `which dot`, which is not a
+command on Windows, so render-graphs.js reported graphviz as missing on
+Windows even when it was installed. Replace it with a direct `dot -V`
+probe via execFileSync.
+
+Also switch the SVG render call from execSync to execFileSync('dot',
+['-Tsvg']). Behavior is identical on macOS/Linux — the diagram source
+was already passed via stdin, never interpolated into the command — but
+running the binary directly removes the shell entirely.
+
+* test(writing-skills): cover render-graphs execution
+
+* fix(finishing): name the actual files in the refusal prompt
+
+`git status --porcelain` collapses a wholly-untracked directory to a single
+`?? docs/` line. In the shape of the incident this step exists for (#2016 — an
+uncommitted plan document under an untracked `docs/` tree), the file list we
+show the human partner therefore names no file at all:
+
+    $ git -C "$WORKTREE_PATH" status --porcelain
+    ?? docs/
+    $ git -C "$WORKTREE_PATH" status --porcelain -uall
+    ?? docs/superpowers/plans/2026-08-04-csv-export-rollout.md
+
+Both forms produce identical (empty) output on a clean worktree, so this adds
+no over-trigger surface.
+
+Found while running this PR's behavioral micro-tests. Every treatment agent
+dug past `?? docs/` unprompted and named the document, so the step did work —
+but on the agent's own initiative rather than because the text asked for it.
+That initiative is not reliable one tier down: Claude Haiku 4.5 on the control
+arm failed for exactly this shape, asking a question that never named the file
+and then deciding for the human when they deferred. Nothing in the prior
+wording stopped a treatment agent from relaying `?? docs/` verbatim and
+satisfying the letter of the instruction.
+
+Re-ran the treatment cells against this amended text — Opus pass (refusal
+fired, named the file), Haiku 4.5 pass (named the file) — no regression.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+
+* docs: design Hermes version-bump wiring
+
+Document the agreed follow-up to PR #2025 on a branch based on its merged dev commit. The design registers the Hermes YAML manifest, keeps jq for existing JSON files, and uses Mike Farah yq v4 for a narrow top-level YAML field rather than adding a Bash parser.\n\nDefine focused failure behavior and behavioral tests while explicitly excluding nested YAML, Hermes runtime changes, and unrelated release-script refactors. This captures Drew's request to keep the implementation small and avoid process or abstraction overhead.
+
+* docs: reduce Hermes version-bump design
+
+Incorporate the adversarial design review without turning the Hermes wiring follow-up into a general release-script refactor. Keep the existing jq path, add Mike Farah yq v4 only for .yaml, and retain one read-only preflight to prevent deterministic partial bumps.\n\nReduce the test contract to three behavioral cases and explicitly defer .yml support, nested YAML, rollback machinery, audit/status redesign, exhaustive failure matrices, and the separately discovered JSON-expression issue. This follows Drew's direction to avoid ceremony and overengineering.
+
+* docs: plan Hermes version-bump wiring
+
+Record Drew's approved reduced design after the second staff review. Limit preflight to the mutating bump path, cover audit's independent read path, and require byte-for-byte proof that deterministic YAML failures cannot partially update earlier JSON manifests.
+
+Provide one TDD implementation task for the Hermes registry entry, jq/yq dispatch, focused preflight, and three behavioral checks. Explicitly defer rollback, audit-status changes, nested YAML, runtime changes, and broader release-tool refactoring.
+
+* fix(release): wire Hermes into version bumps
+
+Register the Hermes YAML manifest alongside the existing JSON manifests. Route manifest reads and writes by extension through jq or Mike Farah yq v4, with field names and values passed as data.
+
+Preflight every present manifest before the mutating bump loop so a deterministic YAML read failure cannot leave earlier JSON manifests partially updated. Cover check, audit, bump, registry wiring, and byte-for-byte no-partial-write behavior with one focused fixture test.
+
+* feat(opencode): add V2 (opencode2) plugin compatibility
+
+Add dual V1/V2 support to the OpenCode plugin. The same source file now
+works on both OpenCode V1 (opencode) and V2 (opencode2) without version
+detection at runtime.
+
+V2 changes:
+- Add default export { id, server, setup } for V2 PluginSupervisor
+- setup() registers skills via ctx.skill.transform() (V2 native API)
+- setup() injects bootstrap via ctx.session.hook('context') (V2 equivalent
+  of V1's experimental.chat.messages.transform)
+- config hook guards against V2 array-format skills to avoid conflicts
+
+Both APIs confirmed active at runtime via diagnostics in the V2 beta.
+
+No external dependencies added — pure JavaScript throughout.
+
+Docs updated with V2 install instructions, OPENCODE_CONFIG_DIR side-by-side
+setup, and accurate How It Works section for both versions.
+
+* docs: add Grok Build CLI to README.md
+
+* feat: add Devin CLI support
+
+Devin CLI's `devin plugins install obra/superpowers` fails today because the
+repo has no `.devin-plugin/plugin.json` manifest. Add the manifest (skills are
+auto-discovered from the co-located skills/ directory), a Devin tool mapping
+linked from using-superpowers' Platform Adaptation section, a README install
+section, version tracking in .version-bump.json, a Codex-sync exclude for the
+new dotdir, and a CI-safe test mirroring the kimi/antigravity test style.
+
+Bootstrap rides Devin's native skill surfacing: every installed skill's
+name + description is injected into the system prompt at session start with a
+standing instruction to invoke matching skills via the native skill tool.
+Acceptance test ("Let's make a react todo list") passes in a clean session:
+using-superpowers and brainstorming auto-trigger before any code is written.
+
+* Drop devin-tools.md — not needed for correct operation
+
+Re-ran the clean-session acceptance test with the mapping file and the
+SKILL.md Platform Adaptation pointer removed: using-superpowers and
+brainstorming still auto-trigger first, and the full workflow chain
+(writing-plans, executing-plans, TDD, verification) resolves every action
+to Devin's native tools. Devin CLI's own system prompt already documents
+its tools (skill invocation, subagent profiles, todo tracking, question
+prompts), so the mapping was redundant. Test now validates the manifest only.
+
+* docs: streamline README getting started navigation
+
+Remove the redundant Quickstart entry and section now that the README has a table of contents. Rename the Installation label in the table of contents to Getting Started while retaining the existing installation anchor and section heading.
+
+* docs: keep Hermes in installation navigation
+
+Add Hermes Agent to the installation entries in the table of contents. The removed Quickstart section was the README's only direct link to that existing installation section, so preserving the link avoids a navigation regression.
+
+* feat(tdd): the project's suite defines green, not just your test file
+
+At the Verify GREEN moment, redefine "other tests still pass": run the
+project's test command even when the task named only one test file — a
+scope statement bounds the deliverable, not the verification — and any
+failure seen goes in the report by name. In a pre-registered 24-rep
+battery on an adjacent-breakage probe, controls ran the wider suite in
+1/12 sessions; with this text, 8/12 (sonnet 4/4, kimi 3/4, glm 1/4),
+and every session that saw the failure reported it.
+
+Claude-Session: https://claude.ai/code/session_0185AJr98gHx5EmwqNeft4Sy
+
+* docs: release notes for v6.3.0
+
+* chore: bump version to 6.3.0
+
+* Update to Prime Radiant Community Code of Conduct. (#2122)
+
+* docs: add Qwen Code install instructions to README
+
+Rebased from PR #2108 onto the reworked README. Differences from the PR:
+the Hermes TOC entry and Quickstart-line changes are obsolete (the v6.3.0
+README rework already added the former and removed the latter), and the
+Hermes post-compaction caveat stays: .hermes-plugin injects the bootstrap
+only on is_first_turn, so the caveat is still accurate.
+
+Install/update commands and the acceptance transcript are from PR #2108
+(@arittr, tested interactively on Qwen Code).
+
+Co-authored-by: Drew Ritter <arittr@users.noreply.github.com>
+
+* fix(requesting-code-review): anchor the multi-commit BASE_SHA alternative to the merge base
+
+The '# or origin/main' alternative fed a moving ref into the reviewer's
+two-dot diff: once origin/main advances past the branch point, main's new
+files appear as phantom deletions the reviewer can't distinguish from real
+ones. Reproduced during triage (2026-08-12): a scratch repo with main
+advanced one commit shows 'main-new.txt | 1 -' in the branch's diff.
+git merge-base origin/main HEAD anchors the range to the branch point,
+matching how sdd's review-package already computes BASE.
+
+Reported in #2118 (wan-huiyan). Fixes #2118.
+
+* fix(sdd): invoke sdd-workspace via bash so helpers survive stripped exec bits
+
+Codex marketplace users hit 'Permission denied' running SDD helpers:
+some extractors (Python zipfile) discard Unix mode attributes when
+unpacking the package, so task-brief's and review-package's direct exec
+of their sibling sdd-workspace fails. Our packaging preserves 0755
+(git archive | tar -xpf, asserted by the existing packaging test) — the
+bits are lost on the consumer side, which no packaging change can reach.
+Invoking the sibling via "${BASH:-bash}" makes the exec bit irrelevant.
+
+TDD: new regression case copies the helpers, chmod -x, runs task-brief
+via bash — RED with the reported rc=126 Permission denied, GREEN after.
+
+Reported in #2040 (michaelholcomb-creator). Fixes #2040.
+
+* fix(sdd): reject empty or non-descendant BASE..HEAD ranges in review-package
+
+When an SDD implementer commits to the wrong branch (#2050), the
+BASE..HEAD range handed to review-package is either empty or not rooted
+at BASE. Both cases previously produced a review package silently —
+an empty one lets the reviewer approve "clean" work that isn't there.
+
+Add two mechanical guards after BASE/HEAD validation, exiting 3 (vs 2
+for usage errors) so callers can distinguish range problems:
+
+- git merge-base --is-ancestor BASE HEAD, else "HEAD is not a
+  descendant of BASE"
+- git rev-list --count BASE..HEAD > 0, else "empty commit range"
+
+Guard shape credits the analysis in closed PR #2082 by @stantheman0128.
+
+Fixes #2050
+
+* fix(opencode): adapt to V2 skill draft API removal (#2106)
+
+OpenCode V2 removed SkillDraft.source() in 1113adfd5e (#41622): the
+skill service now stores values only, and filesystem scanning moved to
+the config side. The plugin's draft.source({type:'directory'}) call
+threw 'draft.source is not a function', which killed the entire V2
+plugin activation generation. Because V2 gates model.list on
+PluginSupervisor.flush (23b0688a7f, #41783), that failure left flush
+pending forever and the TUI showed no providers or models
+('Model catalog initialization timed out', /api/model 503).
+
+Register each skills/<name>/SKILL.md as a native Skill.Info object via
+draft.add({id, name, description, location, content}) instead, matching
+the {list, add, update, remove} draft API and the pattern used by
+V2's built-in skill plugin. Wrap skill registration, hook registration,
+and the context hook callback in try/catch so a future V2 API change
+degrades to a logged error instead of taking down the whole generation
+again. session.hook('context') payload shape is unchanged and keeps
+working.
+
+Verified end-to-end on opencode2 v0.0.0-beta-17595: 24 skills listed
+via /api/skill (all superpowers skills present), /api/model returns
+83 models across 3 providers, no 'failed to reload plugins' in server
+logs. V1 path untouched.
+
+* fix(opencode): skip V2 setup when V1 invokes it with a V1-shaped ctx
+
+opencode 1.18.18 also calls default.setup, but with a ctx that lacks
+the skill/session domains, so the defensive try/catch logged a TypeError
+into every V1 session transcript even though V1 is fully served by the
+SuperpowersPlugin named export. Detect the V1 shape and return quietly.
+
+* feat(skills): import proving-it-works-with-a-movie from its standalone repo
+
+Brings the proving-it-works-with-a-movie skill (demo/screencast/proof-video
+recording, plus the check-movie timeline gate that catches frozen pictures,
+narration drift, and dropped words) into superpowers core, along with its
+supporting docs, scripts, and shell regression tests.
+
+Source: prime-radiant-inc/proving-it-works (MIT, same copyright holder),
+skills/proving-it-works-with-a-movie/ at time of import. The five scripts
+(narrate, make-subtitles, assemble, burn-subtitles, check-movie) are
+self-contained uv --script files with inline PEP 723 dependency
+declarations, so they port with no new project-level dependency wiring.
+
+Test paths were adjusted one directory level to match superpowers'
+tests/<skill-name>/ layout (the standalone repo kept tests/ as a
+top-level sibling of skills/).
+
+Adds a Verification entry to README's Skills Library list.
+
+Goal: fold this into 6.4 and retire the standalone repo.
+
+* fix(opencode): skip controller bootstrap in task subagent sessions (#2160)
+
+Detect child sessions structurally via session parentID instead of
+relying on the model honoring <SUBAGENT-STOP>:
+
+- V1: sessionID from firstUser.info.sessionID (hook input is empty at
+  runtime), parentID via client.session.get({path:{id}})
+- V2: sessionID from the context-hook event, parentID via
+  ctx.session.get({sessionID})
+
+Decision cached per session; lookup failures fail open (previous
+behavior) and are not cached. Skills registration is unaffected, so
+workers keep explicit access to execution skills.
+
+* fix(opencode): skip controller bootstrap in task subagent sessions (#2160)
+
+The messages.transform hook injects the using-superpowers bootstrap into
+the first user message of every session, including task subagent
+children. Workers then restart brainstorming/design cycles for work the
+parent already authorised — the <SUBAGENT-STOP> note inside the
+bootstrap only works when the model chooses to honor it.
+
+Detect child sessions structurally instead: OpenCode task sessions are
+created with a parentID, so when the session carrying the message has a
+parentID, skip bootstrap injection. The hook receives no input at
+runtime (verified in the 1.18.x bundle: trigger(..., {}, {messages})),
+so the sessionID is taken from firstUser.info.sessionID and the session
+record is fetched via client.session.get({path:{id}}).
+
+The decision is cached per session; lookup failures fail open (previous
+inject-always behavior) and are not cached so transient errors recover.
+Skills registration is untouched — workers keep explicit access to
+execution skills.
+
+* fix(opencode): add root index.js entrypoint for v2 directory-form registration
+
+* docs(opencode): remove and merge identical v1/v2 install and update guidance
+
+* Fix platform-support issue template to apply a label that exists
+
+The template auto-applies `platform-support`, but the repo has no such label
+(harness requests use `new-harness`). GitHub silently drops labels that don't
+exist, so every platform-support request arrives unlabeled — the Amazon Q
+request (#2194) is the latest example.
+
+Claude-Session: https://claude.ai/code/session_01UiEfXTZAC5cuH4hgx24mbB
+
+* fix: establish shared intent before implementation
+
+Discover the intended outcome, audience and success criteria before proposing
+features when the request leaves them unclear. Reflect the understanding for
+correction and carry it into the selected path's design artifact.
+
+Bind approval to the actual stage presented: new architectural work requires
+written-spec review and the planning handoff before implementation. Preserve
+the existing lighter spike and bounded paths and clarify the short-design
+example accordingly.
+
+Jesse requested this repair after a React todo session advanced from feature
+scope approval without establishing purpose. The controlled CLI comparison
+observed purpose discovery in 5/5 candidate openings versus 0/5 controls, with
+full-chain and holdout outcomes and their limits recorded in the PR. This
+commit preserves the independently reviewed skill bytes; research artifacts
+and the original development history are archived outside the PR.
+
+* fix: review the saved plan before execution
+
+Present the saved, self-reviewed plan for human review before implementation.
+Request an execution method when none was supplied; preserve an existing
+choice and ask only for plan review when the human already chose a method.
+
+This completes the shared-intent repair without interpreting approval of an
+earlier idea or scope as approval of an unseen implementation plan. Four
+saved-plan smoke cases covered old/new wording with/without a prior choice;
+all passed the narrower handoff checks, including old controls, so this is
+not evidence of measured improvement.
+
+Jesse requested consolidation into two commits and removal of the supporting
+spec/plan research content from the PR. The skill bytes remain identical to
+the reviewed branch; the complete research and original history are retained
+in local archives.
+
+* docs: specify proof movie OS compatibility
+
+* docs: resolve adversarial review of movie compatibility spec
+
+* docs: plan proof movie OS compatibility with Windows validation host
+
+* test(movie): validate native Windows recording mechanism
+
+* fix(movie): release probe resources after evidence failures
+
+* docs(movie): avoid repeating the interactive probe take
+
+* test(movie): port regression fixtures to Python
+
+* test(movie): verify first subtitle cue offset
+
+* fix(opencode): differentiate tool mapping by host flavor and harden child detection
+
+Current opencode2 builds renamed the model-facing tools (bash→shell,
+task→subagent with `agent` instead of `subagent_type`, apply_patch→
+patch/patchText) and removed todowrite entirely, so the single v1
+mapping injected on v2 hosts taught the model stale tool names.
+
+- export V1_MAPPING/V2_MAPPING and inject the flavor-correct one on
+  each path (v1 messages.transform → V1; v2 ctx.session.hook("context")
+  → V2, incl. no-todo-tool guidance and sessionID continuation)
+- child-session detection now keys on parentID presence (primary
+  signal on both flavors) with dual-shape unwrapping preserved; v1
+  #2160 behavior unchanged
+- mirror surfaces updated: INSTALL.md dual mapping tables,
+  README.opencode.md host-flavor notes, test-bootstrap-caching.mjs
+  asserts both mappings + drives the v2 context hook end-to-end
+- skills: add OpenCode to executing-plans' subagent-capable list,
+  accurate OpenCode worktree status (git fallback; TUI dialogs are
+  user-side only), generalized live-subagent resume guidance
+
+* fix(movie): make frame and concat inputs portable
+
+* docs: scope remaining movie work to Windows completion
+
+* docs: resolve adversarial review of Windows completion scope
+
+* docs: plan three milestones to finish Windows movie support
+
+* fix(opencode): drop skill-content edits from this PR
+
+AGENTS.md requires evaluated adversarial testing for any skill-content
+change; these three one-line harness-accuracy notes don't clear that
+bar, so they are deferred to a separate evaluated change. The PR now
+ships plugin, docs, and test changes only — no skill content modified.
+
+* fix(movie): finish native Windows media tools
+
+* feat(movie): support native Windows terminal recording
+
+* fix(movie): verify terminal health before finalizing takes
+
+* docs(movie): document and verify Windows workflows
+
+* docs(movie): correct reserved regression suite names
+
+* chore(movie): drop the abandoned OS-rollout probe and superseded plans
+
+The first, broader OS-compatibility rollout was stopped and replaced by the
+narrower Windows completion. Its feasibility probe, probe cleanup test,
+design, review, 12-task plan, results report, and the completion plan and
+review record were internal execution artifacts with machine-specific paths.
+The one probe-derived test list is inlined into the terminal suite.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* test(movie): keep one portable test suite
+
+The Python suite ported the three shell tests' assertions so they run on
+Windows; both copies were kept and the README mapped one to the other. Keep
+the portable suite. Drop the one-shot Windows acceptance driver and its
+browser fixture, which produced evidence rather than regressions, and the
+never-implemented reserved suite names.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* docs(movie): trim Windows guidance to what the tools need
+
+Remove generic shell exit-status recipes and a stills wrapper that the card
+scene already covers. Keep the gdigrab commands and the verify-on notes
+short. Reduce the spec to the design: drop execution logistics, host names,
+and references to deleted files.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* test(movie): keep tool output out of the test log
+
+The in-process narration and subtitle tests let the tools' stdout and
+stderr through to the runner. Capture both and assert the expected
+diagnostics.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* feat(movie): simplify the Windows terminal recorder to serve/run/key/watch/close
+
+Windows has no tmux, so the recorder had grown into a 738-line daemon with a
+file-based request protocol, request IDs, wait-only result retrieval, and a
+Win32 Job Object module. Replace it with the Unix route's shape: serve keeps
+ttyd and a headless browser alive and logs the terminal's output; run, key,
+watch, and close are one-shot CDP calls against that browser. The installed
+prompt reports each command's status through the window title, so run can
+print it without any visible marker.
+
+Process cleanup uses taskkill /T (a pgrep walk on Unix) instead of Job
+Objects, which also simplifies the card renderer. The session tests run on
+macOS too, since nothing in the script is Windows-specific.
+
+Verified: 9 session tests per shell on Windows 11 for PowerShell 5.1,
+PowerShell 7, and Git Bash; the browser suite with Chrome and Edge; 44
+portable tests on macOS against a real ttyd session.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* feat: add diagnosing-superpowers skill
+
+Evidence-based diagnosis of superpowers sessions: intake with the human
+partner, safe transcript reading for Claude Code and Codex (discovery
+procedure for other harnesses), seven analyst subagents, a report with
+path:line evidence and a bounded superpowers-involvement line, scrubbed
+export bundles, approval-gated GitHub issue search/draft, and
+similar-session search. Includes spec, plan, structure test, and README
+and docs index lines.
+
+Developed RED-GREEN-REFACTOR per writing-skills: 46 scored scenario runs
+across five SKILL.md versions, all twelve scenarios clean against the
+final version, micro-tests control 5/5 to skill 0/5 on both
+baseline-failing prohibitions, and one end-to-end run. Eval records are
+kept by the maintainer outside the repo.
+
+Claude-Session: https://claude.ai/code/session_01DyaGKhTXvHNs2JgPhDktz7
+
+* docs: add 'When Something Goes Wrong' README section for diagnosing-superpowers
+
+* diagnosing-superpowers: build the scrubbed bundle only on request
+
+Never build or push a bundle unprompted. When intake names a bug report as
+the goal, say once that a bundle is available on request, then wait. On
+handover, state what the bundle contains, point at the scrub log, and say
+scrubbing can miss things so every file needs review before sharing.
+Raise the SKILL.md word budget to 1000 to fit the added rule.
+
+* diagnosing-superpowers: share the analyst preamble and context-safety rules
+
+The seven analyst prompts opened with an identical 39-line block (role,
+inputs, context safety, return format). It now lives once in
+prompts/analyst-common.md and each dimension prompt points at it. The
+wc -lc / long-line / never-cat rule was restated in nine places; it now
+lives in references/context-safety.md and everything else points there.
+Addresses arittr's review on #2236.
+
+* diagnosing-superpowers: drop gh; file issues through a prefilled template link
+
+A default gh login carries the repo scope, which is write access to every
+repository the user can reach. The skill now searches issues through the
+unauthenticated public API and, instead of posting, hands the partner a
+prefilled new-issue link. The link uses a new diagnosis_report.md issue
+template so the bug and automated-issue-report labels apply regardless of
+the reporter's permissions. Addresses arittr's review on #2236.
+
+* diagnosing-superpowers: say 'plan step', not 'commitment'
+
+In a transcript full of git commits, 'commitment' and 'committed to' read
+as version control. The plan-adherence and quality-evidence prompts now
+say 'agreed plan' and 'plan step'.
+
+* spec: 'agreed to', not 'committed to', in the plan-adherence summary
+
+* diagnosing-superpowers: writing review fixes
+
+Move GitHub search and prefilled-link mechanics to references/github-issues.md.
+State the redaction levels neutrally instead of nudging toward more data.
+Say that all seven analysts always run and what the quick-reference table
+is for. Add a title slot and a bundle slot to the issue template. Drop the
+duplicated human-prompts rule from request-conflicts. Prose fixes: active
+voice, dangling modifier, vague referents, two lists turned into tables.
+
+* diagnosing-superpowers: use gh for issue search and creation
+
+gh handles auth, rate limits, and JSON, and the approval gate on the
+exact issue text already covers posting. Keep the public-API and
+prefilled-link paths as fallbacks for machines without gh. Note that
+GitHub drops labels from reporters without push access, so the template
+footer is the durable marker of a skill-filed issue.
+
+* Use shared session discovery in diagnosing-superpowers
+
+At Drew's request, apply the evaluated shared-discovery variant to Jesse's
+existing PR #2236. Resolve native session sources and record semantics from
+available tools, documentation and bounded inspection. Record verified absolute
+paths, linkage, extraction queries, human-message distinctions, usage-counter
+semantics and uncertainty once in the case for all analysts to consume.
+Replace the three per-harness references and update structural checks.
+
+This is exactly the evaluated source tree at
+3f0a63e860d4719397e584e90cc7af07a247cb6d, applied as one commit on
+801badbf719f4044c97175e5b01fb6f7cbc32c2d. Fourteen files change;
+126 lines added, 285 removed. No private eval fixtures or transcripts ship.
+
+Validation:
+- Structural test: 45 passed, 0 failed before and after application.
+- Staged tree exactly matches the evaluated candidate; diff check passes.
+- Independent read-only review: no actionable blockers.
+- Retained before/after full doctor runs: one pair each on native Claude,
+  Codex and Pi. All six delivered reports and completed seven dimensions.
+  Shared discovered all three native session families without the removed
+  references. Both versions had report-quality defects; shared Codex deleted
+  its cited case through a fixture symlink. Preserve this negative result.
+- Eight fresh Codex follow-ups: original/shared x symlink/ordinary-home x
+  two repeats, one retained historical session family. All eight retained
+  cases and supported the four core findings. Seven native final deliveries;
+  one shared run stopped on provider capacity after writing its report.
+  No deletion recurred. One original reused three analysts for seven tasks.
+  Recorded follow-up cost $34.8617883, all eight attempts accounted for.
+
+These observations support this scoped simplification, not general equivalence
+or a causal claim that reference removal caused or could not cause a failure.
+Child assignment/model choices were native behavior; the complete variants
+also differ in analyst prompts. Common provenance, citation-verification and
+measurement problems remain separate follow-ups. No new paid runs were made
+for this publication; evidence and independent audits are retained privately
+by Drew. Behavioral evaluation provenance: campaigns
+358c7333-c5f0-48bd-a733-61196da992ed and
+102d630d-30ef-49a0-97e1-8dd410ed0548.
+
+Prepared with GPT-6 using Codex through Paseo; local codex-cli 0.153.4.
+Skills used: superpowers writing-skills, using-git-worktrees,
+requesting-code-review, verification-before-completion; primeradiant-ops
+linear-ticket-lifecycle. Drew approved publishing this evaluated variant.
+Enabled plugins in the publishing checkout's Codex configuration:
+- github@openai-curated
+- documents@openai-primary-runtime
+- spreadsheets@openai-primary-runtime
+- presentations@openai-primary-runtime
+- primeradiant-ops@primeradiant
+- slack@openai-curated
+- linear@openai-curated
+- codex-security@openai-curated
+- pdf@openai-primary-runtime
+- template-creator@openai-primary-runtime
+- sites@openai-bundled
+- visualize@openai-bundled
+- computer-use@openai-bundled
+- cloud-build@superpowers-cloud-build
+- browser@openai-bundled
+- superpowers@superpowers-dev
+- stream-deck-agents-codex@drew-local
+- computer-history@openai-bundled
+- codex-app-tools@openai-bundled
+- unified-computer-use@openai-bundled
+- chrome@openai-bundled
+- bits-and-bolts@mcp-extensions-early-access
+- visual-probe@visual-probe-local
+
+Tracking: PRI-3127
+
+* Preserve diagnostic evidence through doctor export
+
+Align scrubber and independent audit prompts around one shared redaction policy while preserving safe command, result, source, session-line, quotation, and linkage structure. Add finished-handoff evidence and reconciliation instructions, provenance labels across case/report/bundle/issue templates, and the structural existence check for the shared reference.\n\nThis patch responds to the retained negative post-report handoff baseline: cited result bodies were removed wholesale, source findings and the positive related-session match were not verifiable, provenance and export statements were stale, and scrub counts disagreed. The behavioral handoff validation remains pending for the follow-up task; this commit records only the focused product guidance and structural RED/GREEN evidence.
+
+* Clarify scrub audit return contract
+
+Remove the obsolete CLEAN branch beneath the audit prompt's Otherwise return instruction. CLEAN remains governed by the preceding no-misses condition, and MISSED is now the only alternative. Verified with the focused structural test and git diff --check.
+
+* fix(movie): preserve rejected narration and prior takes
+
+Prevent failed narration scenes from entering the cache manifest, while leaving their generated WAV files available as failure evidence. Add filesystem-backed regressions covering repeated rejected chat synthesis, accepted-scene reuse, and strict ASR rejection of cached audio.
+
+Refuse nonempty recording directories both before CLI session side effects and at the direct film boundary. The regression preserves existing numbered frames and a sentinel byte-for-byte across run, key, watch, and direct film refusal.
+
+Make subtitle capability tests independent of the host FFmpeg installation, skip the real pixel test before probing unavailable tools, retain strict skipped-capability rejection, and remove only the unused websockets runner dependency.
+
+* docs(movie): make native Windows recorder recipes executable
+
+Replace the Git Bash PowerShell shorthand with complete native commands,
+explicit path conversion, a kept-alive serve task, bounded readiness, and
+run/key/watch/close examples. Use native input and sleep commands so the
+recipe works without a sample app. Explain empty take directories and
+PowerShell 5.1 embedded-quote escaping observed in native trials.
+
+The original PowerShell missing-cwd finding does not reproduce when the
+session is nested under the working directory; retain the successful
+baseline and describe explicit directory creation as setup clarity.
+
+Fresh readers exercised the final recipes on native PowerShell 5.1,
+PowerShell 7, and Git Bash. Preserve the failed first candidate and driver
+setup failures, distinguish instruction trials from full skill evaluation,
+and keep movie acceptance with Drew. Record Drew's approval of the normal
+workflow dependencies and the bounded repair plan.
+
+* Fix narration cache identity and partial subtitle offsets
+
+Address the fresh review on PR #2214 after the #2275 integration. Drew approved fixing the two reproduced bugs and keeping the specified auto/on/off verification semantics.
+
+Cache accepted narration by normalized text plus effective engine, voice, and synthesis model. Resolve voice defaults before rendering, invalidate entries without settings, and retain requested ASR checks on cache hits. Exclude rejected clips as before.
+
+Treat manual subtitle offsets as start-time overrides. Only assembly offsets JSON selects scenes in the cut, including when manual timing overrides are also supplied. Empty narrated cuts write an empty SRT without crashing.
+
+Make the gated Unix example pass --verify on and document the actual local ASR modes. Auto remains permissive if ASR is unavailable; on remains strict.
+
+Validation: observed the new cache and subtitle regressions fail before the fixes; all 23 focused narration and subtitle-text tests now pass. Synthesis, duration probing, and ASR are mocked. No media inspection or live ASR was performed; Drew retains final video acceptance.
+
+* Fix inserted narration and movie audio subtitle checks
+
+Address the final three review findings on PR #2214, as approved by Drew. Count both sides of every non-equal transcript span so a short insertion or expanded replacement cannot evade the drift gate on a longer script. Preserve the existing length and run thresholds.
+
+Honor --no-expect-audio for encoded silent tracks. Base subtitle requirements on detected audible speech so opting out of expected audio does not suppress captions for speech that is present.
+
+Extract the first embedded subtitle stream as SRT when no sidecar is present and apply the same cue-end check to either source. Empty cues fail even for short narration, and extraction or malformed timing errors are reported as failures. Preserve the silent end-card allowance.
+
+Validation: the new tests first reproduced ten failing cases across narration insertion, silent-track opt-out, and embedded subtitle handling. All 35 focused narration, checker-policy, and subtitle-text tests now pass. External media commands, audio and picture sampling, contact-sheet creation, synthesis, and ASR were mocked; no actual media inspection or live ASR was performed. Drew retains final video acceptance.
+
+* docs: plan consolidated movie committee repairs
+
+Drew requested a whole-PR committee review after repeated narrow fixes missed failures. Record the repair boundaries, acceptance handoff, timing and lifecycle contracts, and focused regression cases before implementation. Preserve existing artifact formats and Drew-owned video acceptance; all automated checks in this pass use mocked media boundaries.
+
+* fix(movie): make narration acceptance govern assembly
+
+Repair Task 1 from the 2026-09-11 movie committee plan. Narration now atomically withdraws acceptance before it mutates accepted bytes, stages failed takes as retained evidence, and publishes a manifest entry only after transcript gates and duration measurement. It preflights ffprobe, preserves bounded retries and cache identity, and distinguishes unsupported token comparison from cache identity.
+
+Assembly now validates accepted manifest narration before it starts encoding, ignores generated narration for movie scenes, selects manifest WAV paths, maps source or synthetic movie audio explicitly, fits wide movies within the requested inner rectangle, and escapes only literal directory percent signs in sequence paths. The focused regression suite mocks every media boundary; real-media fixture declarations are updated but not executed. Prompt constraints prohibit real media generation, probing, inspection, synthesis, ASR, browser, checker, or full media suites.
+
+* fix(movie): retain narration evidence through verification
+
+Address Task 1 review round 1. Treat successful empty ASR output as speech failure rather than an unavailable verifier, reject empty chat claims within the existing bounded retry loop, and extend unsupported segmentation detection to supplementary CJK ideographs.
+
+Withdraw cached acceptance before every revalidation so strict failures and interrupts cannot leave stale publication. Preserve nested manifest WAV paths on cache reacceptance, and measure a unique candidate before promotion so duration failures retain their evidence across reruns. Add structured movie geometry coverage plus both silent and source-audio mapping tests. All tests use uv --no-project with mocked synthesis, ASR, probes, and encoding; no media operation was run.
+
+* test(movie): cover unsupported ASR and ordinary retries
+
+Close Task 1 review round 2 without production changes. Feed actual unsupported ASR text through auto and strict verification while proving off does not call ASR. Run the second rejected narration invocation without --force, then assert it synthesizes new takes and retains distinct rejected bytes instead of reusing cache evidence.
+
+* fix(movie): keep subtitle timing and track selection faithful
+
+Implement Task 2 of the movie committee repairs. Allocate proportional cue boundaries across each complete rounded scene interval, reserve positive millisecond spans, and coalesce chunks when the available interval cannot represent them separately. Readability limits guide word splitting without dropping text or clipping narration tails; invalid intervals fail before subtitle output is written.
+
+Explicitly select the supplied soft subtitle track with optional source audio, including the hard-burn fallback. Parse only numbered SRT cue timing lines so arrow-bearing captions cannot crash the checker or inflate coverage. Preserve the existing maximum cue end policy, assembly-offset intersection, and partial manual retiming.
+
+Add 17 safe subtitle contracts and register the contracts runner suite. Real-file mocked narrate/assemble/subtitle reruns retain removed narration WAV evidence while omitting stale assembly audio and offsets. Verification: 41 contract tests and 18 authorized existing regressions pass; only text and mocked media boundaries were exercised. Native Windows and human video acceptance remain outside this verification.
+
+* fix(movie): refine subtitle chunks using allocated durations
+
+Address Task 2 review round 1: initial character budgets count spaces that disappear between chunks, so proportional timing can exceed --max-secs even when a further word-boundary split is feasible. Reallocate after splitting an over-target multiword cue, checking actual integer millisecond intervals each time.
+
+Coalescing runs once before refinement, and refinement stops at the available millisecond count or unsplittable words. This keeps tiny impossible readability targets bounded while preserving every word and the full measured scene interval.
+
+Added a failing six-second unequal-chunk regression and a tiny-target termination/positive-interval guard. The RED emitted 3273 ms for a cue with a 3000 ms target. GREEN: 43 safe contract tests and six covering existing offset/BOM tests pass. All verification remained text/data or mocked media boundaries.
+
+* fix(movie): own recorder cleanup and bound observation
+
+Implement Task 3 of the consolidated PR 2214 movie repairs. Startup failures could leak an already launched ttyd or browser because acquisitions preceded the cleanup block; close killed historical numeric PIDs and reported success without confirmed cleanup. Register each acquired resource inside serve's try/finally, invalidate readiness on shutdown, retain logs, and atomically retire PID metadata only after confirmed owned-process and profile cleanup. Close now requests stop and waits under one overall 30-second deadline without killing PIDs.
+
+Poll CDP and owner readiness while observing commands without recording, preserving a completed native exit status across simultaneous disconnects and reserving exit 2 for live unfinished commands. Fill only bounded 5 fps slots when a final capture crosses the hard or hold endpoint, correctly strip ST-terminated OSC titles, and emit ASCII-escaped stdout JSON while preserving UTF-8 session files. A serve-only CDP call-boundary check prevents a stop from waiting through multiple consecutive calls.
+
+Add 21 contract tests using fake processes, fake websocket responses, fake clocks, byte-token capture callbacks, and intercepted frame writes. Register real-session test cleanup immediately after Popen and retain live PID snapshots, but do not execute that fixture. RED evidence and implementation report are in .superpowers/sdd/2026-09-11-movie-committee-repairs/task-3-report.md. Validation: 26/26 authorized prompt, serve-argument, and recorder contract tests pass; git diff --check passes. No media generation, inspection, browser/ttyd launch, real session or frame-grid suite was performed. Native movie acceptance remains Drew's review; an abruptly hard-killed owner with a live browser and stale readiness remains the agreed limitation.
+
+* fix(movie): retain incomplete cleanup and command evidence
+
+Address both independent Task 3 review findings at 42486dbb. When an owned leader exits before tree cleanup, the existing parentage helper cannot confirm orphan descendant cleanup. Treat that state as incomplete, preserve PID metadata, return failure, and never invoke the helper on the exited leader's numeric PID. Continue releasing the other owned resources without adding descendant tracking.
+
+Keep a recording capture failure truthful while preserving available completed command evidence: outcome remains failed, exit status remains 1, and the capture error is retained alongside ok, native exit_code, and cwd. A completed successful command does not make a failed recording successful, and no successful take manifest is published.
+
+TDD regressions reproduced an exited leader incorrectly returning 0 and capture failures dropping completed native status for exits 0 and 7. All 14 covering lifecycle and observation tests pass using fake process handles, fake clocks, mocked capture/log boundaries, and intercepted media writes; git diff --check passes. No real media generation or inspection, process/browser launches, SessionTests, FilmGridTests, or full media suites were executed. Detailed RED/GREEN evidence is appended to .superpowers/sdd/2026-09-11-movie-committee-repairs/task-3-report.md.
+
+* docs: make proof-movie recipes preserve failures
+
+Repair the shipped Unix, logging, subtitle, cursor, narration, and recorder guidance against the literal fake-boundary failures recorded for Task 4. The primary pipeline and subtitle recipe now fail fast, measured offsets reach subtitle generation, producer logging preserves the real status under the pipefail owner, and cursor mouseup restores the released state.
+
+Document the accepted narration/cache contract, cooperative recorder cleanup limits, and the safe contracts-suite entrypoint without changing Windows recipes or the existing evidence and human-viewing gates. Include the controller-owned plan bookkeeping and record the executable RED/GREEN results while leaving independent fresh-reader trials pending.
+
+Prompt: implement Task 4 focused executable movie-guide corrections after Tasks 1-3, using writing-skills and only fake producers, text fixtures, and fake DOM execution.
+
+Verification: python3 .superpowers/review/pr2214/committee/recipe-probes.py; uv run --script tests/proving-it-works-with-a-movie/run-tests.py --suite contracts; git diff --check.
+
+* docs: record consolidated movie repair verification
+
+Complete the four-task repair plan after independent reviews and two fresh-reader reference trials. Record 66 current contract tests and 45 existing safe regressions, executable recipe failures and repairs, and the limits of those checks.
+
+Drew requested a committee and full local review after repeated PR feedback. Preserve the negative evidence, distinguish historical native runs from current mocked/text checks, and retain Drew's video viewing as final acceptance. The whole accumulated PR review and authorized existing-branch update remain the next steps; no merge is performed.
+
+* Reject invalid chat transcripts and propagate browser cleanup failures
+
+Address the two final whole-PR findings from the consolidated movie repair
+brief. A fresh openai-chat response must provide a speech-bearing string
+transcript even when local ASR is off; null must not reuse the no-transcript
+sentinel belonging to deterministic engines or cached accepted audio.
+Preserve the bounded candidate loop and rejected-byte evidence.
+
+Report failed Windows tree termination as OSError so the recorder owner's
+existing per-child handler continues all cleanup and retains failure metadata.
+Card rendering checks its acquired browser handle before acting on the PID,
+propagates wait failure, and reports locked-profile removal instead of
+allowing a pending successful return to hide incomplete cleanup.
+
+Add fake HTTP/process/filesystem boundary regressions for both findings,
+including real adapter invocation, accepted chat cache reuse, ASR modes,
+normal completed cards, and serve cleanup after a failed leader later exits.
+Correct the rejected-chat fixture to use the chat engine. No media or native
+browser execution was performed; Drew retains personal video acceptance.
+
+Validation: expected RED failures retained; 40 focused tests and the single
+75-test contracts entrypoint pass. Full evidence and self-review are in
+.superpowers/sdd/2026-09-11-movie-committee-repairs/final-fix-report.md.
+
+* fix(opencode): align V2 tool mapping with the 2.0.3 catalog; harden plugin internals
+
+- V2 bootstrap mapping now teaches write/edit/websearch (verified against
+  a live v2.0.3 /api/plugin tool catalog) instead of routing all file
+  mutation through patch
+- frontmatter parser tolerates CRLF and YAML block scalars/continuation
+  lines
+- child-session cache is bounded (512 entries, oldest-quarter eviction)
+- INSTALL.md and docs/README.opencode.md tool tables synced to the 2.0.3
+  catalog; unit-test needle list extended to cover the new tools
+
+* Invoke bundled scripts through their interpreter in skill prose
+
+Plugin packagers for other harnesses can strip executable bits from the
+files they ship. The Codex marketplace cache delivered the SDD helpers as
+0644 (#2040), and the MiniMax Code marketplace ships its repackaged copy
+of our skills tree with every file at mode 600. On those installs every
+bare invocation in our skill prose -- `scripts/start-server.sh ...`,
+`scripts/review-package ...`, `./find-polluter.sh ...`,
+`./render-graphs.js ...` -- fails with "Permission denied", so the
+brainstorming visual companion, subagent-driven development, the
+polluter bisection helper, and render-graphs are all broken there even
+though the repo records the files as 100755.
+
+Spell every script invocation in skills/**/*.md through its interpreter
+instead: `bash` for the shell scripts (start-server.sh, stop-server.sh,
+sdd-workspace, task-brief, review-package, find-polluter.sh) and `node`
+for render-graphs.js, per each script's shebang. That form works whether
+or not the exec bit survived packaging. The MiniMax Code marketplace
+package independently applied exactly this edit to its copy of v6.2.0;
+this brings the same pattern upstream so every packager gets it.
+
+Nothing else in the prose changes. #2134 covers the complementary case
+of a script exec'ing a sibling script (task-brief and review-package
+calling sdd-workspace) and is still needed alongside this.
+
+Record the rationale in docs/porting-to-a-new-harness.md (Part 6
+distribution notes plus an Appendix B gotcha) and add a one-line note to
+writing-skills' File Organization section so future skill authors don't
+strip the prefixes.
+
+Refs #2040, #2134.
+
+* fix(opencode): register skills with Skill.Info 2.0.4 path field; contain per-skill add failures
+
+Reported on PR #2106 (80avin): on OpenCode v2.0.4 the plugin is disabled
+at startup with "Plugin disabled after skill.transform failed", losing
+both skill registration and bootstrap injection.
+
+Root cause: upstream commit 199aabe9e2 (first released in v2.0.4)
+renamed Skill.Info's required file field `location` -> `path` and removed
+`slash`. draft.add() decodes payloads with Schema.decodeUnknownSync
+against that schema, so our `location` payloads now fail decode with
+"Missing key path".
+
+Why the failure was silent: the decode error is thrown during the host's
+state rebuild, where the State layer catches it and hard-disables the
+whole plugin group asynchronously - the throw never reaches the
+try/catch around ctx.skill.transform(), and the session "context" hook
+is torn down as collateral.
+
+Fix:
+- skill payloads now use `path` (2.0.4 contract); no v2.0.3 compatibility
+  retained per review decision
+- draft.add() failures are contained per skill inside the transform
+  callback, so one rejected payload skips that skill (visible in server
+  logs) instead of the host disabling the entire plugin
+- new test-skill-registration unit test pins the 2.0.4 payload contract
+  (absolute path field, no stale location/slash, hostile-add containment)
+  and is registered in run-tests.sh; full suite 3/3 green
+
+* fix(sdd): ownership markers stop same-basename plans sharing a workspace
+
+sdd-workspace slugged workspaces by basename alone, so docs/alpha/plan.md
+and docs/beta/plan.md resolved to one directory and task-brief silently
+overwrote the other plan's brief — the single gitignored source of task
+requirements, unrecoverable once clobbered.
+
+Each workspace now records its owning plan in a plan-path marker
+(repo-relative in-repo, absolute outside). Lookup keeps basename slugs
+and existing behavior for the common case: a markerless workspace is
+adopted in place (no migration break for in-flight plans), a marker
+naming this plan is a match, and a marker naming a different plan
+disambiguates with the plan's parent-directory name, then a counter.
+Plan paths are normalized (CDPATH-guarded physical cd) so relative,
+absolute, and ../ spellings of one plan share one workspace.
+
+task-brief and review-package delegate to sdd-workspace and need no
+changes. SKILL.md's workspace bullet no longer promises the exact
+<plan-basename> path, since disambiguated workspaces differ.
+
+Reported by @CRGDan; reproduction and test groundwork by @crisnahine
+in PR #2120.
+
+Fixes #2045
+
+* feat: add native Muse support (multiprovider)
+
+Add .muse-plugin/plugin.json (native Muse contract, 16 skills,
+SessionStart hook) and marketplace.json so the same repo now serves
+Muse alongside Claude Code, Codex, Cursor, Gemini, Pi, etc.
+
+- skills/using-superpowers/references/muse-tools.md: Muse tool mapping
+- skills/using-superpowers/SKILL.md: list Muse in Platform Adaptation
+- hooks/session-start: handle MUSE_PLUGIN_ROOT (SDK standard
+  additionalContext) alongside CURSOR/CLAUDE/COPILOT branches
+- .version-bump.json: track .muse-plugin/plugin.json and marketplace
+- README.md: add Muse to TOC and Installation with muse plugins install
+  instructions
+- AGENTS.md: convert symlink -> regular file copy to satisfy Muse
+  validator (symlink entries rejected as installable)
+
+Validated: muse plugins validate => valid:true (diagnostics=1 for
+expected multiple-manifests warning), all 16 skills validate true.
+
+Co-Authored-By: Muse Spark
+
+* fix: Muse SessionStart hook must use nested hookSpecificOutput
+
+muse-spark-1.3-contributor rejects top-level additionalContext on
+SessionStart ("unsupported additionalContext in output"). Switch Muse
+branch to Claude-style nested {hookSpecificOutput:{hookEventName,
+additionalContext}} which validates and injects correctly (tested via
+muse exec --provider meta hello world -> success, no hook failed).
+
+Co-Authored-By: Muse Spark
+
+* docs: fix Muse README to include approve and correct install path
+
+README previously showed muse plugins install ./.muse-plugin and
+muse marketplace add (missing plugins prefix) and omitted the required
+hooks approval step. Muse warns "hooks require review before
+activation" on install; fix to muse plugins install ./ + muse plugins
+approve superpowers per installed flow validated with muse-spark-1.3.
+
+Co-Authored-By: Muse Spark
+
+* docs: expand Muse section to parity with other harnesses
+
+Add clone+install variant, update command, restart/verification notes,
+and SessionStart hook detail to match Gemini/Pi/Hermes depth. Keeps
+same install path (muse plugins install ./ + approve) validated with
+muse-spark-1.3.
+
+Co-Authored-By: Muse Spark
+
+* Add Claude Code platform reference: a nested orchestrator for cheaper subagent-driven development
+
+* docs(testing): describe the Quorum eval lab accurately, replacing stale Drill references
+
+The evals harness was renamed Drill -> Quorum and rewritten from
+Python/uv to Bun/TypeScript; docs/testing.md and CLAUDE.md still
+described the old tool. Beyond the rename, the old text also
+misdescribed the system: quorum is the harness CLI, one part of the
+eval lab — it drives real coding-agent CLIs through a Gauntlet QA
+agent and grades against scenario acceptance criteria plus
+deterministic post-checks. The quick start now matches the eval
+repo's actual commands (bun install / bun run quorum run
+scenarios/<name> --coding-agent claude; scenarios are directories,
+not *.yaml) and points at the Live Eval Risk section before anyone
+runs a permissive-mode session.
+
+Drift reported in closed PR #2121 (@JFWaskin); that PR's replacement
+quick start kept the uv commands, so this rewrite goes from the eval
+repo's README instead.
+
+* Rebuild executing-plans as a first-class inline execution mode
+
+A cheaper execution mode alongside subagent-driven development: the
+session implements every task itself under the same workspace, ledger
+and stopping rules, with one fresh whole-branch review on the most
+capable model at the end. Helper scripts task-start/task-done keep the
+ledger and test log honest; the final fix pass re-grades findings and
+fixes Critical/Important under TDD. writing-plans' handoff, SDD's
+when-to-use text and two README lines change to match.
+
+* Reviewer judges the spec as a vision document; plans list the five implied cases most likely to bite
+
+code-reviewer.md: behavior the spec is silent on is graded by what a
+reasonable person using the software expects, and a 'Declined to judge'
+list makes every scoping decision visible. writing-plans: a Review Focus
+section names the five implied input classes or failure modes most
+likely to bite, each pinned by a test in the owning task. executing-plans
+hands the section to the final reviewer and rules on every declined line.
+
+* docs: replace duplicated agent guidelines with CLAUDE.md pointer
+
+* docs: make AGENTS.md the canonical contributor guidelines
+
+* test(opencode): cover canonical skill paths and registration survival
+
+* fix(opencode): retry unsuccessful child-session lookups
+
+* fix(opencode): retain bootstrap after native compaction
+
+* docs(opencode): describe supported V2 setup and bootstrap behavior
+
+* docs: clarify OpenCode V1 and V2 skill behavior
+
+* chore(opencode): mark test-skill-registration.sh executable
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* test(opencode): cover bootstrap placement when native compaction retains user messages
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* fix(opencode): strip quote pairs after joining multi-line frontmatter values
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* fix(scripts): exclude root index.js from the Codex plugin sync
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* docs(opencode): fix pin example, local-path examples, and V2 log troubleshooting
+
+Restore the version-pin example for both config keys and state the V2
+constraint (the pinned ref must include OpenCode V2 support). Replace the
+`~/...` local-package examples with absolute paths: OpenCode does not expand
+`~`, and a tilde entry is installed as a package spec rather than loaded as a
+directory. Point V2 troubleshooting at `opencode run --standalone
+--print-logs`, since plugin logs are server-role and hidden without
+`--standalone`. Describe where the bootstrap lands when native compaction
+retains user messages under the default keep budget.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+
+* docs: draft release notes for v6.4.0 (#2327)
+
+* docs: draft release notes for v6.4.0
+
+* docs: tighten v6.4.0 release notes
+
+Set the release date, add a lead paragraph, call out the removed
+batch checkpoints, unify the Native/inline naming, and replace
+internal jargon. Correct the TDD probe figure and the Claude Code
+nested-orchestrator opt-in to match #2110 and the reference doc.
+
+Claude-Session: https://claude.ai/code/session_01PRUnVUm4g4EcP9eNjAiT2B
+
+* docs: spell out movie skill dependencies in v6.4.0 notes
+
+Claude-Session: https://claude.ai/code/session_01PRUnVUm4g4EcP9eNjAiT2B
+
+* docs: note AGENTS.md as the canonical guidelines in v6.4.0 notes
+
+* docs: name new harnesses in v6.4.0 summary
+
+Claude-Session: https://claude.ai/code/session_01PRUnVUm4g4EcP9eNjAiT2B
+
+* docs: list OpenCode 2.0, Muse, and Qwen Code as new harnesses in v6.4.0
+
+Move the Claude Code nested controller note under Subagent-Driven
+Development.
+
+Claude-Session: https://claude.ai/code/session_01PRUnVUm4g4EcP9eNjAiT2B
+
+* docs: reword v6.4.0 harness summary
+
+Claude-Session: https://claude.ai/code/session_01PRUnVUm4g4EcP9eNjAiT2B
+
+* test(movie): expect 8 frames from the slow-capture film test (#2329)
+
+42486db made film() fill every grid slot before the endpoint, but this
+test kept its old count of 7. Its fake clock advances 0.01 s per capture
+and 0.02 s per sleep, so the prompt is seen at 1.01 s, the 0.4 s hold
+ends at 1.41 s, and slots 0.0-1.4 s make 8 frames. The test has failed
+on every run since 42486db.
+
+* chore: bump version to 6.4.0 (#2330)
+
+Release engineering for 6.4.
+
+* Revert movie skill import (#2214) (#2335)
+
+Remove the proving-it-works-with-a-movie import at Drew Ritter’s request because its code quality does not meet the release bar.
+
+Reverts merge dd53fe0b57223bbbbb8ceae0bda2ba8a26d1c29a and the dependent movie test adjustment in 3979a17bda8691d72bfc5963e5437174c399db67. Remove the later Muse registration and update the unreleased notes so neither advertises the removed skill. Version changes are left for a separate release step.
+
+* docs(release-notes): retitle unreleased v6.4.0 notes as v6.4.1
+
+v6.4.0 was prepared but never shipped (release PR #2331 closed
+unmerged, no tag). The next release is v6.4.1. Rename the section and
+open it with a note saying v6.4.0 never shipped and that v6.4.1 holds
+back the proving-it-works-with-a-movie skill for cleanup and robustness
+work before it returns. The note replaces the revert paragraph added in
+#2335. Version bumps are left for the release step.
+
+Claude-Session: https://claude.ai/code/session_01PRUnVUm4g4EcP9eNjAiT2B
+
+* chore: bump version to 6.4.1
+
+v6.4.0 was never shipped; 6.4.1 is the first release with these changes.
+Points the OpenCode V2 pinning docs at v6.4.1, since no v6.4.0 tag will
+exist. Excludes the gitignored evals/ clone from the version audit, which
+was grepping all 11G of it and never finishing.
+
+Claude-Session: https://claude.ai/code/session_01BJAzd3A26a2XKo1JUJWySu
+
+* docs: fix Muse table of contents indentation
+
+---------
+
+Co-authored-by: Drew Ritter <drew@primeradiant.com>
+Co-authored-by: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+Co-authored-by: Ada Sen <ada@sen.dev>
+Co-authored-by: Gaurav Dubey <gauravdubey0107@gmail.com>
+Co-authored-by: arimu1 <19286898+arimu1@users.noreply.github.com>
+Co-authored-by: Mark Rada <markrada26@gmail.com>
+Co-authored-by: dev_Hakaze <af.nawfal@gmail.com>
+Co-authored-by: Cursor <cursoragent@cursor.com>
+Co-authored-by: kumarabd <kumarabd@users.noreply.github.com>
+Co-authored-by: Drew Ritter <drew@ritter.dev>
+Co-authored-by: Kattni <kattni@kattni.com>
+Co-authored-by: GoldJohnKing <GoldJohnKing@live.cn>
+Co-authored-by: Georgii Perepechko <georgiiperepechko@gmail.com>
+Co-authored-by: Caio Lopes <caiodesalopes@gmail.com>
+Co-authored-by: Drew Ritter <arittr@users.noreply.github.com>
+Co-authored-by: Ada Sen <ada.sen@primeradiant.com>

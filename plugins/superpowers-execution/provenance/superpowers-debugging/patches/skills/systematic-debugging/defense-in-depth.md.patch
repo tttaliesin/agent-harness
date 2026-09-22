@@ -1,0 +1,17 @@
+--- skills/systematic-debugging/defense-in-depth.md
++++ skills/systematic-debugging/defense-in-depth.md
+@@ -74,11 +74,10 @@
+ 
+ ```typescript
+ async function gitInit(directory: string) {
+-  const stack = new Error().stack;
++  // Add only when instrumentation is authorized; do not log raw paths or payloads.
+   logger.debug('About to git init', {
+-    directory,
+-    cwd: process.cwd(),
+-    stack,
++    directoryPresent: Boolean(directory),
++    directoryType: typeof directory,
+   });
+   // ... proceed
+ }

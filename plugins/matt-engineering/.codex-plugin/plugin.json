@@ -1,0 +1,19 @@
+{
+  "name": "matt-engineering",
+  "version": "0.1.0",
+  "description": "Selected engineering skills adapted for the existing OpenSpec and Core workflow.",
+  "author": {
+    "name": "developer-skills maintainers"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Matt Engineering",
+    "shortDescription": "Selected engineering skills adapted for the existing OpenSpec and Core workflow.",
+    "longDescription": "Selected engineering skills adapted for the existing OpenSpec and Core workflow.",
+    "developerName": "developer-skills maintainers",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Help me use Matt Engineering."
+  },
+  "license": "MIT"
+}

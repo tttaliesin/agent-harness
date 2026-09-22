@@ -1,0 +1,19 @@
+{
+  "name": "superpowers-execution",
+  "version": "0.1.0",
+  "description": "Selected execution disciplines with the existing systematic-debugging supply.",
+  "author": {
+    "name": "developer-skills maintainers"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Superpowers Execution",
+    "shortDescription": "Selected execution disciplines with the existing systematic-debugging supply.",
+    "longDescription": "Selected execution disciplines with the existing systematic-debugging supply.",
+    "developerName": "developer-skills maintainers",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Help me use Superpowers Execution."
+  },
+  "license": "MIT"
+}

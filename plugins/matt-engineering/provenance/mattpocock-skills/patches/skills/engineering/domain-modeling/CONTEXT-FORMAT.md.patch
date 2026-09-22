@@ -1,0 +1,10 @@
+--- skills/engineering/domain-modeling/CONTEXT-FORMAT.md
++++ plugins/matt-engineering/skills/domain-modeling/CONTEXT-FORMAT.md
+@@ -1,4 +1,7 @@
+ # CONTEXT.md Format
++
++Use the repository's existing glossary location and format first.
++The following is a fallback when glossary creation is authorized.
+ 
+ ## Structure
+ 

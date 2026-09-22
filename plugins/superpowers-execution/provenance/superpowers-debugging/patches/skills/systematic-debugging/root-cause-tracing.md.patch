@@ -1,0 +1,77 @@
+--- skills/systematic-debugging/root-cause-tracing.md
++++ skills/systematic-debugging/root-cause-tracing.md
+@@ -12,13 +12,13 @@
+ digraph when_to_use {
+     "Bug appears deep in stack?" [shape=diamond];
+     "Can trace backwards?" [shape=diamond];
+-    "Fix at symptom point" [shape=box];
++    "Gather more evidence" [shape=box];
+     "Trace to original trigger" [shape=box];
+     "BETTER: Also add defense-in-depth" [shape=box];
+ 
+     "Bug appears deep in stack?" -> "Can trace backwards?" [label="yes"];
+     "Can trace backwards?" -> "Trace to original trigger" [label="yes"];
+-    "Can trace backwards?" -> "Fix at symptom point" [label="no - dead end"];
++    "Can trace backwards?" -> "Gather more evidence" [label="no - dead end"];
+     "Trace to original trigger" -> "BETTER: Also add defense-in-depth";
+ }
+ ```
+@@ -65,17 +65,15 @@
+ 
+ ## Adding Stack Traces
+ 
+-When you can't trace manually, add instrumentation:
++When manual tracing and existing evidence are insufficient, add instrumentation only within the task's authorized mutation scope.
++Log allowlisted non-sensitive fields; sanitize stack traces before sharing.
+ 
+ ```typescript
+ // Before the problematic operation
+ async function gitInit(directory: string) {
+-  const stack = new Error().stack;
+   console.error('DEBUG git init:', {
+-    directory,
+-    cwd: process.cwd(),
+-    nodeEnv: process.env.NODE_ENV,
+-    stack,
++    directoryPresent: Boolean(directory),
++    directoryType: typeof directory,
+   });
+ 
+   await execFileAsync('git', ['init'], { cwd: directory });
+@@ -86,7 +84,8 @@
+ 
+ **Run and capture:**
+ ```bash
+-npm test 2>&1 | grep 'DEBUG git init'
++# Use the existing repository test command and retain its complete output and exit status.
++npm test
+ ```
+ 
+ **Analyze stack traces:**
+@@ -98,13 +97,10 @@
+ 
+ If something appears during tests but you don't know which test:
+ 
+-Use the bisection script `find-polluter.sh` in this directory:
+-
+-```bash
+-./find-polluter.sh '.git' 'src/**/*.test.ts'
+-```
+-
+-Runs tests one-by-one, stops at first polluter. See script for usage.
++Use the repository's test runner to isolate candidate tests in an authorized disposable fixture.
++Record preexisting state before each run and stop when the unwanted change appears.
++Do not delete existing files or suppress test failures as proof that tests are clean.
++The upstream npm-specific helper is not included in this package.
+ 
+ ## Real Example: Empty projectDir
+ 
+@@ -157,7 +153,7 @@
+ 
+ **In tests:** Use `console.error()` not logger - logger may be suppressed
+ **Before operation:** Log before the dangerous operation, not after it fails
+-**Include context:** Directory, cwd, environment variables, timestamps
++**Include context:** Allowlisted non-sensitive presence, type, size, error code, and timestamps; never raw environment values.
+ **Capture stack:** `new Error().stack` shows complete call chain
+ 
+ ## Real-World Impact

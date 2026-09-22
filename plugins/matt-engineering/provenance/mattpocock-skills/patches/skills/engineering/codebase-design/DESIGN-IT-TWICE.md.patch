@@ -1,0 +1,14 @@
+--- skills/engineering/codebase-design/DESIGN-IT-TWICE.md
++++ plugins/matt-engineering/skills/codebase-design/DESIGN-IT-TWICE.md
+@@ -18,7 +18,10 @@
+ 
+ ### 2. Spawn sub-agents
+ 
+-Spawn 3+ sub-agents in parallel. Each must produce a **radically different** interface for the deepened module.
++Use native Codex delegation for two or more independent design alternatives when this materially improves the decision.
++Give each agent a bounded read-only brief and collect evidence before comparing results.
++If delegation is unavailable or disproportionate, examine the alternatives directly.
++Each alternative should expose a meaningfully different interface or tradeoff; the current OpenSpec change and Core ownership remain authoritative.
+ 
+ Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
+ 
