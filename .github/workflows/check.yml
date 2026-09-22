@@ -70,7 +70,9 @@ jobs:
           pnpm --dir fixtures/streaming install --frozen-lockfile --ignore-scripts
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Check OpenSpec generation and lifecycle
-        run: uv run --no-sync pytest -q fixtures/openspec/test_lifecycle.py --basetemp=.reports/os-ci --junitxml=.reports/openspec.xml
+        run: |
+          New-Item -ItemType Directory -Force .reports | Out-Null
+          uv run --no-sync pytest -q fixtures/openspec/test_lifecycle.py --basetemp=.reports/os-ci --junitxml=.reports/openspec.xml
       - name: Exercise Python HTTP scenarios and reject invalid evidence
         working-directory: fixtures/web-api
         run: |
