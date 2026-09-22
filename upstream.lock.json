@@ -289,7 +289,7 @@
   "artifacts": {
     ".gitattributes": "f6b8671399be6a5f113d6d084ed174213f0ec3ca751d3f024ad43f29fab6ff29",
     ".github/workflows/check.yml": "84184c0792766cbbd75ecd303841f048167c4eca983eeb957e52d6d303532061",
-    ".gitignore": "8fe437d43ef70955069833cfac7f99a02cefa80fe5c79701c9cc792fd6a94147",
+    ".gitignore": "d6c33f78cfe7d7d78b7564dd264d00d674381e26049a4316505fea4bfa43171c",
     "AGENTS.md": "523ec88b16f08e6a4ccf4128e56ed79b87f2ca30ab307b5d19159d6638cb0534",
     "README.md": "c5885cf678b592f84d4e97df819b043cfb7870c87eedba8f281b1c8e566085a6",
     "THIRD_PARTY_NOTICES.md": "98def7ee9ab56bcc9bb05ab54f54dd6d5aeab4c22d86b580f908211aaee06f98",

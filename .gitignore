@@ -6,6 +6,8 @@ node_modules/
 .pytest_cache/
 .ruff_cache/
 .reports/
+# Preserve ignored local results from the retired runtime during migration.
+.harness/
 dist/
 build/
 *.egg-info/
