@@ -2,7 +2,7 @@
 
 Python 표준 라이브러리 HTTP 서버와 저장된 Playwright Test로 Web·Python 검사 연결 확인
 실제 제품·배포·실제 계정의 통과 근거와 별개
-요구·OpenSpec·리뷰·인계 연결 파일은 통합 담당자가 추가할 대상
+명세는 [정본](openspec/specs/web-api/spec.md), 후보·리뷰·실행 근거는 [보관한 인계 기록](openspec/changes/archive/2026-09-22-accept-web-api/handoff.md) 참조
 
 ## 환경 준비
 

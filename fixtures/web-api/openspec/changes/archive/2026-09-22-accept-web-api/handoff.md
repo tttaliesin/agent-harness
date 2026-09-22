@@ -45,3 +45,7 @@ R2 installation and real product/operations acceptance remain unperformed; conti
 Verified CI: https://github.com/tttaliesin/agent-harness/actions/runs/35725047006 — both jobs SUCCESS for `d06fb7929b77837d159b2178188930a3ad5e3c65`. Downloaded package-and-helper-tests and usage-fixture-results artifacts; XML has 117 maintenance cases, five OpenSpec cases, 12 HTTP cases and seven browser cases with zero failures/errors/skips. Streaming JSON reports the same committed candidate, PASS and cleanup PASS.
 
 Archival completed on 2026-09-22 by pinned OpenSpec 1.13.1: three requirements synchronized; canonical strict validation passed. The archival task itself was checked only after the CLI succeeded. All six fixture tasks are complete; original product and user-installation gates remain separate.
+
+## Exact checkout resumption
+
+This archived record fixes the tested revisions above; it does not claim that its containing commit has already passed CI. From the Git root, obtain the current full SHA with git rev-parse HEAD, inspect git status --short and git diff --stat d06fb7929b77837d159b2178188930a3ad5e3c65 HEAD. Query gh run list -R tttaliesin/agent-harness --commit <that-full-SHA> --workflow check.yml, then inspect that run and download its named artifacts. This supplies current delivery evidence without prior chat context. If the run is absent or pending, record that status and continue the authorized check; never reuse the older run as a current PASS.
