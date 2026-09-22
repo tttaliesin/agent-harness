@@ -28,7 +28,7 @@ Category는 용도별 폴더이며 Git repository나 현재 저장소 목록이 
 
 | Category | 주된 책임 | 상세 규칙 |
 | --- | --- | --- |
-| `governance/` | Workspace 공통 규칙·정책·지식 정본 | [Governance](docs/categories/governance.md) |
+| `governance/` | 독립 소유자가 필요한 공통 지식·결정; 현재 공통 정책은 Agent Harness 소유 | [Governance](docs/categories/governance.md) |
 | `products/` | 사용자·고객에게 제공하는 기능과 경험 | [Products](docs/categories/products.md) |
 | `infra/` | 공통 runtime·artifact 전달·운영 환경과 배포 기반 | [Infra](docs/categories/infra.md) |
 | `platforms/` | 여러 제품이 interface로 소비하는 application 서비스 | [Platforms](docs/categories/platforms.md) |

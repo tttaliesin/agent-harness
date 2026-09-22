@@ -21,6 +21,8 @@
 필요한 운영 스킬이 설치되어 있지 않으면 대상 저장소의 문서에서 접근 가능한 계약을 확인하고, 영향받는 작업의 미확인 경계만 보고한다.
 Sibling 스킬이 같은 디렉터리에 설치됐다고 가정하지 않는다.
 Agent Harness Git 정본: [Agent Harness](https://github.com/tttaliesin/agent-harness)
+기존 workspace-rules의 정책 스킬 공급은 종료, 현재 정책은 이 저장소에서 수정·설치
+이관 범위·역사 자료·복귀 기준은 [정책 공급 전환](implementation/layout-map.md#정책-공급-전환) 참조
 
 ## 정본 수정
 
