@@ -8,7 +8,7 @@
 
 ```bash
 npx skills add ./skills --skill '*' --agent codex --global
-codex plugin marketplace add /absolute/developer-skills
+codex plugin marketplace add /absolute/agent-harness
 codex plugin add workflow-core@personal
 codex plugin add matt-engineering@personal
 codex plugin add superpowers-execution@personal
@@ -41,7 +41,7 @@ Hook의 local evidence는 CI 또는 read-only enforcement의 증거가 아님
 
 ```bash
 harnesskit --root /absolute/product sync \
-  --template-root /absolute/developer-skills/templates \
+  --template-root /absolute/agent-harness/templates \
   --manifest binding.json
 ```
 

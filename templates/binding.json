@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "package_version": "0.1.0",
-  "package_digest": "10b617ca9b8a3288c5abd837c1f7216e00fa603356bb08ca5ccac21a3e29363b",
+  "package_digest": "521632015e6853621cfc7c9cea7329fa4dbc57ecaf07e2ccef9bd987f7bc9ca5",
   "files": [
     {
       "source": "agents/domain-reviewer.toml",

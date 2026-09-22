@@ -20,7 +20,7 @@ Preserve any applicable policy already established for a continued task.
 | --- | --- |
 | Product module build, image publication, immutable identity or moving channel | [Product publication](references/github-actions-workflows.md#product-ci-build-only-계약), [event semantics](references/github-actions-workflows.md#event와-상태-전이), and relevant [verification cases](references/github-actions-workflow-recipes.md) |
 | Product installation release or test coverage | [Installation release](references/github-actions-workflows.md#제품-설치-릴리스) and the actual consumer interface |
-| Infra trust or cross-repository access | [Infra boundaries](https://github.com/tttaliesin/developer-skills/blob/main/skills/workspace-governance/references/workspace-rules/docs/categories/infra.md) |
+| Infra trust or cross-repository access | [Infra boundaries](https://github.com/tttaliesin/agent-harness/blob/main/skills/workspace-governance/references/workspace-rules/docs/categories/infra.md) |
 | Unresolved prerequisite or handoff | [Evidence applicability](references/github-actions-workflows.md#evidence-discovery-and-operation-applicability) |
 
 For deployment use the available `deployment-promotion` skill; for host preparation use

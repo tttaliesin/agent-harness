@@ -4,7 +4,7 @@
 
 | 위치 | 책임 | 이번 작업 |
 | --- | --- | --- |
-| tools/developer-skills | 공통 스킬·정책·지원 코드의 한 패키지 | 현재 구현 대상 |
+| tools/agent-harness | 공통 스킬·정책·지원 코드의 한 패키지 | 현재 구현 대상 |
 | products/allsen-edge-agent | 제품 요구·소스·기존 검사·향후 Adapter | 기존 검사 유지, 다음 단계에서 연결 |
 | infra/deploy | 호스트 준비·배포·승인·관측·복귀 | 이번 공통 패키지에 복제하지 않음 |
 | infra/self-hosted-runner | 현재 runner 구현 | ephemeral 전환 실험 이후 deploy로 이관 판단 |
@@ -51,7 +51,7 @@
 5. 기존 공급 종료 안내와 복귀할 revision 보존
 
 원본 저장소 삭제나 기존 Git 이력 병합은 이관의 필수 조건이 아님
-2026-09-22 원본 workspace-rules의 private 상태와 대상 tttaliesin/developer-skills의 public 상태 재확인
+2026-09-22 원본 workspace-rules의 private 상태와 대상 tttaliesin/agent-harness의 public 상태 재확인
 사용자의 민감정보 검사 후 공개 push 요청으로 공개 범위 확정
 최종 파일과 미전송 커밋 이력 검사, 원격 SHA 일치 확인을 전달 조건으로 적용
 기존 정책 공급 종료와 제품 참조 전환은 별도 후속 작업

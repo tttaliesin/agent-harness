@@ -18,7 +18,7 @@ Product의 로컬·통합 테스트 fixture와 Compose 제공 허용
 
 ## 제품 발행과 운영 연결
 
-Product CI의 검증·발행·moving channel 정책은 [Actions 규칙](https://github.com/tttaliesin/developer-skills/blob/main/skills/github-actions-workflows/references/github-actions-workflows.md#product-ci-build-only-계약) 적용
+Product CI의 검증·발행·moving channel 정책은 [Actions 규칙](https://github.com/tttaliesin/agent-harness/blob/main/skills/github-actions-workflows/references/github-actions-workflows.md#product-ci-build-only-계약) 적용
 배포 실행은 대상 저장소의 현재 계약을 확인하며 발행 성공과 실제 실행 결과를 구분
 Product build에 배포·host 관리 자격 증명을 공급하지 않는 경계 유지
 Runtime 연결 방식·실행 기반·권한은 [Infra 규칙](infra.md)을 적용하고 실제 작업 대상은 [소유 스킬 안내](../../../../SKILL.md#route-by-responsibility)에서 선택

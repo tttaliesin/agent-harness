@@ -80,7 +80,7 @@ The optional change making symbols discretionary was not accepted in this implem
 
 For runtime setup or package maintenance, read [runtime setup](references/runtime-setup.md).
 Helpers require Python 3.9+ and an existing or explicitly authorized Mermaid CLI runtime.
-They discover `mmdc` on PATH, `DESIGN_DOC_MERMAID_MMDC`, or the host-local developer-skills runtime configuration.
+They discover `mmdc` on PATH, `DESIGN_DOC_MERMAID_MMDC`, or the host-local agent-harness runtime configuration.
 They do not install dependencies, upload artifacts, or send error/source text to external services.
 Inspect helper process/output behavior before first use or after updates; then use `--help` for exact arguments.
 The local workflow documents the adapted command interface; old upstream CLI examples are not an API compatibility promise.

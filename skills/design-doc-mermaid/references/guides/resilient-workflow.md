@@ -63,7 +63,8 @@ Require separate user/team approval only when the user or repository explicitly 
 For an authorized runtime installation or package regression checks, use [runtime setup](../runtime-setup.md).
 Resolve a repository-established renderer first by passing `--mmdc` and, if needed, `--puppeteer-config`.
 Otherwise use the existing approved installation discovered by the helper.
-Host configuration is `$XDG_CONFIG_HOME/developer-skills/mermaid-runtime.json`, defaulting to `~/.config/developer-skills/mermaid-runtime.json`.
+Host configuration is `$XDG_CONFIG_HOME/agent-harness/mermaid-runtime.json`, defaulting to `~/.config/agent-harness/mermaid-runtime.json`.
+Existing `developer-skills/mermaid-runtime.json` remains a fallback when the new configuration is absent.
 It contains local `mmdc` and optional `puppeteer_config` paths; do not put personal runtime paths into the skill source.
 Record the renderer version using that executable's `--version`.
 Do not change browser sandbox flags or download dependencies to make a check pass without authorization for that change.

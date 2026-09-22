@@ -29,4 +29,4 @@ OS·Docker 준비의 지원 범위는 현재 호스트 관리 구현에서 확�
 
 Portainer·전용 배포 runner·Actions 앱 CD는 이 운영 모델의 필수 요소에서 제외
 이미 이관한 관리 기능의 이전 구현은 활성 복사본 없이 Git 이력에서 조회
-상세 CI·릴리스·운영 책임은 [Actions 정책](https://github.com/tttaliesin/developer-skills/blob/main/skills/github-actions-workflows/references/github-actions-workflows.md) 참조
+상세 CI·릴리스·운영 책임은 [Actions 정책](https://github.com/tttaliesin/agent-harness/blob/main/skills/github-actions-workflows/references/github-actions-workflows.md) 참조

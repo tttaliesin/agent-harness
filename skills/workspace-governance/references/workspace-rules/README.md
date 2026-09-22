@@ -1,7 +1,7 @@
 # Workspace Rules
 
 Workspace의 저장소 분류, 공통 작업 규칙과 이를 전달하는 coding-agent skill을 관리한다.
-공통 규칙·스킬은 Developer Skills의 공통 Harness 패키지에 함께 배치하며 이 경로의 `workspace-rules`는 규칙 문서 묶음 이름
+공통 규칙·스킬은 Agent Harness의 공통 Harness 패키지에 함께 배치하며 이 경로의 `workspace-rules`는 규칙 문서 묶음 이름
 실제 실행 명령과 현재 운영 상태는 해당 구현 저장소에서 확인한다.
 
 ## 필요한 문서 찾기
@@ -9,13 +9,13 @@ Workspace의 저장소 분류, 공통 작업 규칙과 이를 전달하는 codin
 | 하려는 일 | 먼저 읽을 문서 |
 | --- | --- |
 | 작업 시작·저장소 선택 | [작업 안내](docs/use-cases.md) |
-| GitHub Issue·PR·merge | [GitHub 운영 규칙](https://github.com/tttaliesin/developer-skills/blob/main/skills/github-operations/references/github-operations.md) |
-| 개발 도구 선택·템플릿 적용 | [개발 도구 기준](https://github.com/tttaliesin/developer-skills/blob/main/skills/development-tooling/references/development-tooling.md) |
-| Markdown 작성·검증 | [Markdown 규칙](https://github.com/tttaliesin/developer-skills/blob/main/skills/markdown-authoring/references/markdown-authoring-rules.md) |
-| 배포 구조 파악 | [CI/CD 흐름 지도](https://github.com/tttaliesin/developer-skills/blob/main/docs/ci-cd-map.md) |
-| CI/CD 구현·운영 | [Actions 규칙](https://github.com/tttaliesin/developer-skills/blob/main/skills/github-actions-workflows/references/github-actions-workflows.md) |
+| GitHub Issue·PR·merge | [GitHub 운영 규칙](https://github.com/tttaliesin/agent-harness/blob/main/skills/github-operations/references/github-operations.md) |
+| 개발 도구 선택·템플릿 적용 | [개발 도구 기준](https://github.com/tttaliesin/agent-harness/blob/main/skills/development-tooling/references/development-tooling.md) |
+| Markdown 작성·검증 | [Markdown 규칙](https://github.com/tttaliesin/agent-harness/blob/main/skills/markdown-authoring/references/markdown-authoring-rules.md) |
+| 배포 구조 파악 | [CI/CD 흐름 지도](https://github.com/tttaliesin/agent-harness/blob/main/docs/ci-cd-map.md) |
+| CI/CD 구현·운영 | [Actions 규칙](https://github.com/tttaliesin/agent-harness/blob/main/skills/github-actions-workflows/references/github-actions-workflows.md) |
 | 새 배포 서버 연결·회수 | [서버 운영 스킬](https://github.com/suchang-busan/deploy/blob/main/skills/target-host-management/SKILL.md) |
-| 규칙·스킬 수정 및 설치 | [스킬 관리](https://github.com/tttaliesin/developer-skills/blob/main/docs/codex-skill.md) |
+| 규칙·스킬 수정 및 설치 | [스킬 관리](https://github.com/tttaliesin/agent-harness/blob/main/docs/codex-skill.md) |
 
 작업 시작·인계·추가 검증·완료 판단에는 [완료와 검증 기준](docs/completion-and-verification.md) 적용
 
@@ -41,5 +41,5 @@ Category는 용도별 폴더이며 Git repository나 현재 저장소 목록이 
 그 공백을 메우기 위한 category-level `index.md`는 만들지 않는다.
 공통 skill은 전달하는 규칙의 소유 저장소에, 특정 정본의 운영 skill은 그 정본과 함께 둔다.
 범용 개발 지원 skill은 `tools/`에 둔다.
-사용자가 선택한 공통 Harness는 workspace 정책·범용 개발 스킬·지원 코드를 `tools/developer-skills` 한 곳에서 관리
+사용자가 선택한 공통 Harness는 workspace 정책·범용 개발 스킬·지원 코드를 `tools/agent-harness` 한 곳에서 관리
 정책 원문은 해당 소유 스킬 references에 한 번만 두며 category별 별도 정책 저장소나 상위 workspace AGENTS 생성은 불필요

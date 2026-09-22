@@ -19,7 +19,7 @@
 | OpenSpec | 1.13.1 | SUPPORTED: pinned CLI; 생성 결과는 openspec-binding.md 참고 |
 | Docker Compose | WSL v5.4.0 | SUPPORTED: 버전 조회; fixture 실행은 다음 단계 |
 | process-compose | 설치 경로 없음 | UNVERIFIED: 제품 fixture 단계에서 필요한 경우 설치·검증 |
-| GitHub 저장소 | tttaliesin/developer-skills public, workspace-rules private | AUTHORIZED: 2026-09-22 민감정보 검사 후 공개 push 요청; 원격 SHA 확인 필요 |
+| GitHub 저장소 | tttaliesin/agent-harness public, workspace-rules private | AUTHORIZED: 2026-09-22 민감정보 검사 후 공개 push 요청; 원격 SHA 확인 필요 |
 
 ## 관측 방법
 

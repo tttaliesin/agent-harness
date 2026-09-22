@@ -12,7 +12,7 @@
 | 고객별 Server·Stack·Resource Sync·실행 시점 | Deploy |
 | Core·MongoDB·Periphery·호스트 설정 Ansible | Deploy |
 | 공통 runner 이미지·실행 설정·등록 절차 | Self-hosted runner |
-| 범용 workflow 보안과 workspace 책임 경계 | Developer Skills의 소유 정책 스킬 |
+| 범용 workflow 보안과 workspace 책임 경계 | Agent Harness의 소유 정책 스킬 |
 
 제품에 고객별 호스트·시크릿 값을 포함하지 않는 경계
 운영 TOML의 image digest와 Compose 커밋은 선택한 deploy 설치 릴리스와 일치

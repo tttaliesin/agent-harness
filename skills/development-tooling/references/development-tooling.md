@@ -9,7 +9,7 @@
 
 | 소유자 | 책임 |
 | --- | --- |
-| `developer-skills`의 공통 Harness | 도구 선택 기준, 실행 계약, 재사용 가능한 선언 템플릿과 적용 skill |
+| `agent-harness`의 공통 Harness | 도구 선택 기준, 실행 계약, 재사용 가능한 선언 템플릿과 적용 skill |
 | 각 repository | 프로젝트 목표·결정·상태, 실제 도구 버전, 의존성 lock, 모듈별 명령, 지원 환경, 전환·검증 근거 |
 | `infra/` 공통 개발 환경 | OS·system library·인증서·mise bootstrap을 제공하는 image와 Dev Container scaffold 구현 |
 | 개인 환경·도구 repository | host 설치, shell·editor 연결, 개인 CLI와 설정의 lifecycle |

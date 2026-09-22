@@ -12,7 +12,7 @@ workspace 지식의 정본을 둔다. 이 규칙과 지식은 특정 product의 
 공통 지식의 문서 형식·배치·수명주기는 해당 지식을 소유한 저장소에서 정의
 작업 맥락과 지식 소유권은 [작업 안내](../use-cases.md)에 따라 확인
 
-사용자가 선택한 공통 Harness에서는 category·소유권·승인 경계와 범용 개발 스킬을 `tools/developer-skills`의 한 패키지로 관리
+사용자가 선택한 공통 Harness에서는 category·소유권·승인 경계와 범용 개발 스킬을 `tools/agent-harness`의 한 패키지로 관리
 정책 본문은 workspace-governance·development-tooling·github-actions-workflows 각 소유 스킬의 references에 배치
 특정 시스템의 운영 스킬은 해당 구현 저장소에서 관리하며 같은 정책의 두 번째 원본을 만들지 않는 기준
 범용 Markdown·GitHub 실행 절차와 workspace의 정책 내용은 같은 패키지 안에서 역할별로 구분
@@ -28,5 +28,5 @@ category 운영 규칙도 함께 고친다.
 
 ## 개발 도구 정책
 
-공통 runtime·package manager·task runner의 선택 기준과 적용 skill은 [개발 도구 기준](https://github.com/tttaliesin/developer-skills/blob/main/skills/development-tooling/references/development-tooling.md)이 소유한다.
+공통 runtime·package manager·task runner의 선택 기준과 적용 skill은 [개발 도구 기준](https://github.com/tttaliesin/agent-harness/blob/main/skills/development-tooling/references/development-tooling.md)이 소유한다.
 정책을 전달하는 선언 템플릿은 이 저장소에 두고, 실제 버전·명령은 각 저장소, 공통 image·bootstrap 구현은 `infra/`, 개인 설치·설정은 `tools/`가 소유한다.

@@ -1,6 +1,6 @@
-# 개발자 스킬과 공통 Harness
+# Agent Harness
 
-에이전트가 따라갈 조사·설계·검증 절차를 필요한 작업에 맞춰 불러오는 Codex 스킬 모음
+Codex의 공통 스킬·정책과 제품 검사 연결·증거 기록을 함께 관리하는 공통 하네스
 버그 원인 조사, API 계약 검토, 문서 구성과 GitHub 작업처럼 반복되는 기준을 각 `SKILL.md`에 두고 프로젝트마다 다시 설명하지 않고 재사용
 필요한 스킬 하나만 설치하거나 같은 저장소의 Core plugin·검증 실행기와 함께 사용 가능
 
@@ -77,7 +77,7 @@ Git과 Node.js/npm 준비 후 README를 바꿀 대상 프로젝트를 Codex에�
 1. 터미널에서 스킬 하나 설치
 
    ```bash
-   npx skills add tttaliesin/developer-skills --skill readme-authoring --agent codex --global --yes
+   npx skills add tttaliesin/agent-harness --skill readme-authoring --agent codex --global --yes
    ```
 
 2. Codex 대화에 다음 요청 입력

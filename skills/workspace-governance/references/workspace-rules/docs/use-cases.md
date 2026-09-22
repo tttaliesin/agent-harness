@@ -7,11 +7,11 @@
 | --- | --- |
 | Product 기능 개발 | [Products](categories/products.md)의 책임에 맞는 저장소에서 구현·build·test |
 | 공통 기능 분리 | 둘 이상의 product가 같은 interface를 실제로 필요로 할 때만 [Platforms](categories/platforms.md) 검토 |
-| 개발 도구 선택·통합 | [개발 도구 기준](https://github.com/tttaliesin/developer-skills/blob/main/skills/development-tooling/references/development-tooling.md)과 [템플릿](https://github.com/tttaliesin/developer-skills/blob/main/skills/development-tooling/references/development-tooling-templates.md) 적용, 개인 설정은 `tools/`, 공통 image는 `infra/`에서 관리 |
+| 개발 도구 선택·통합 | [개발 도구 기준](https://github.com/tttaliesin/agent-harness/blob/main/skills/development-tooling/references/development-tooling.md)과 [템플릿](https://github.com/tttaliesin/agent-harness/blob/main/skills/development-tooling/references/development-tooling-templates.md) 적용, 개인 설정은 `tools/`, 공통 image는 `infra/`에서 관리 |
 | 기술 조사 | [Research](categories/research.md)에 질문·판단 기준·입력·재현 방법·결과 보존 |
 | 원천 자료 사용 | [Data](categories/data.md)에 출처·용도·사용 조건 보존, 소비자는 자료 version 식별 |
-| Product 배포 | [배포 안내](https://github.com/tttaliesin/developer-skills/blob/main/docs/ci-cd-map.md)에서 단계와 담당 skill 확인 |
-| Workspace 규칙 수정 | 해당 규칙 원문 수정 후 [스킬 관리](https://github.com/tttaliesin/developer-skills/blob/main/docs/codex-skill.md)에 따라 승인된 설치본 갱신·검증 |
+| Product 배포 | [배포 안내](https://github.com/tttaliesin/agent-harness/blob/main/docs/ci-cd-map.md)에서 단계와 담당 skill 확인 |
+| Workspace 규칙 수정 | 해당 규칙 원문 수정 후 [스킬 관리](https://github.com/tttaliesin/agent-harness/blob/main/docs/codex-skill.md)에 따라 승인된 설치본 갱신·검증 |
 
 ## 개발 환경
 

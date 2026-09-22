@@ -2,7 +2,7 @@
 
 | 항목 | 상태와 영향 | 해소·재검증 |
 | --- | --- | --- |
-| Private 정책을 public 대상으로 이관 | AUTHORIZED: 2026-09-22 사용자가 민감정보 검사 후 공개 push 요청 | public 대상 tttaliesin/developer-skills 재확인; 최종 커밋 검사·원격 SHA 확인 후 별도로 이전 공급 종료 |
+| Private 정책을 public 대상으로 이관 | AUTHORIZED: 2026-09-22 사용자가 민감정보 검사 후 공개 push 요청 | public 대상 tttaliesin/agent-harness 재확인; 최종 커밋 검사·원격 SHA 확인 후 별도로 이전 공급 종료 |
 | Native hook trust | NOT_CONFIGURED: 설치만으로 hook 실행되지 않음 | 현재 정의를 Codex에서 검토·trust하고 SessionStart·Stop·SubagentStop·Interrupt 실험 |
 | Native read-only enforcement | UNVERIFIED: 역할 파일만으로 공식 리뷰 완료 불가 | 새 제품 task에서 쓰기 거부·명령 권한·전후 tree 관측 |
 | 실제 CI provenance | BLOCKED: JSON·환경변수로 공식 evidence 승인 금지 | 제품 CI 단계에서 immutable run/attempt/head/artifact를 검증하는 provider 연결 |

@@ -61,7 +61,9 @@ def extract_blocks(text):
 def configured_tools(mmdc=None, puppeteer_config=None):
     record = {}
     config_home = Path(os.environ.get('XDG_CONFIG_HOME', str(Path.home() / '.config')))
-    config = config_home / 'developer-skills/mermaid-runtime.json'
+    config = config_home / 'agent-harness/mermaid-runtime.json'
+    if not config.exists():
+        config = config_home / 'developer-skills/mermaid-runtime.json'  # Existing installations
     if config.exists():
         try:
             record = json.loads(config.read_text())

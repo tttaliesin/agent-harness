@@ -9,18 +9,18 @@
 | --- | --- | --- |
 | 개발 toolchain·공통 task·전환 템플릿 | 이 저장소 | `skills/development-tooling` |
 | Workspace governance | 이 저장소 | `skills/workspace-governance` |
-| Markdown authoring | [Developer Skills](https://github.com/tttaliesin/developer-skills) | `skills/markdown-authoring` |
-| GitHub operations | [Developer Skills](https://github.com/tttaliesin/developer-skills) | `skills/github-operations` |
+| Markdown authoring | [Agent Harness](https://github.com/tttaliesin/agent-harness) | `skills/markdown-authoring` |
+| GitHub operations | [Agent Harness](https://github.com/tttaliesin/agent-harness) | `skills/github-operations` |
 | Generic Actions·Product CI 정책 | 이 저장소 | `skills/github-actions-workflows` |
 | Deployment promotion | [Deploy](https://github.com/suchang-busan/deploy) | `skills/deployment-promotion` |
 | Persistent runner management | [Self-hosted runner](https://github.com/suchang-busan/self-hosted-runner) | `skills/self-hosted-runner-management` |
 | Target host management | [Deploy](https://github.com/suchang-busan/deploy) | `skills/target-host-management` |
-| Parallel worktree development | [Developer Skills](https://github.com/tttaliesin/developer-skills) | `skills/parallel-worktree-development` |
+| Parallel worktree development | [Agent Harness](https://github.com/tttaliesin/agent-harness) | `skills/parallel-worktree-development` |
 
 각 저장소의 README와 package 검증 절차를 먼저 확인한다.
 필요한 운영 스킬이 설치되어 있지 않으면 대상 저장소의 문서에서 접근 가능한 계약을 확인하고, 영향받는 작업의 미확인 경계만 보고한다.
 Sibling 스킬이 같은 디렉터리에 설치됐다고 가정하지 않는다.
-Developer Skills Git 정본: [Developer Skills](https://github.com/tttaliesin/developer-skills)
+Agent Harness Git 정본: [Agent Harness](https://github.com/tttaliesin/agent-harness)
 
 ## 정본 수정
 
@@ -59,7 +59,7 @@ Readiness 확인은 해당 operation의 실행 전제조건 확인이며 승인�
 
 ## 외부 스킬 개인 수정 기록
 
-외부 스킬의 승인된 수정과 upstream 대응은 [Developer Skills](https://github.com/tttaliesin/developer-skills)가 소유
+외부 스킬의 승인된 수정과 upstream 대응은 [Agent Harness](https://github.com/tttaliesin/agent-harness)가 소유
 현재 유지보수 의도는 [개인 수정 기록](local-skill-customizations.md)에서 확인
 이전 [이관 기록](https://github.com/suchang-busan/workspace-rules/blob/c8c4e6f9547e0ec9c82e9c4445be9502d48b4f6d/docs/ownership-migration.md)과 [기존 patch](https://github.com/suchang-busan/workspace-rules/blob/c8c4e6f9547e0ec9c82e9c4445be9502d48b4f6d/docs/agent-autonomy-local.patch)는 이전 저장소의 고정 commit에서 확인하는 역사적 증거
 새 수정이나 활성 plugin version은 이 파일에 누적하지 않는다.
