@@ -52,7 +52,7 @@
 +1. The acceptance source already supplied in the task or current OpenSpec change.
 +2. A specification path supplied by the user or referenced from the change.
 +3. An originating issue through the existing authorized tracker workflow when needed.
-+4. If no specification exists, report that the Spec axis is unavailable and complete the Standards review.
++4. If no specification exists, a diagnostic Standards-only review may proceed with the Spec axis unavailable. For formal acceptance requiring a specification, report BLOCKED; never convert that partial review into acceptance.
  
  ### 3. Identify the standards sources
  
@@ -65,7 +65,7 @@
  
  **Standards sub-agent prompt** should include:
  
-@@ -73,9 +85,21 @@
+@@ -73,9 +85,23 @@
  
  ### 5. Aggregate
  
@@ -79,6 +79,8 @@
 +## Final acceptance and review feedback
 +
 +For final acceptance, identify the repository, base, candidate commit, applicable specification, policy/skill revision and actual required-check results.
++Before formal review, run `python scripts/check-candidate.py --repo <product> --base <base> --candidate <full-head-SHA> --spec <required-spec-path>` from this installed skill folder, repeating --spec for each required specification.
++This read-only helper rejects a dirty tree, missing specifications, a changed candidate and an empty comparison; it does not run product checks or grant review permissions.
 +Give both review passes those same inputs; a changed candidate or relevant input requires updating the affected evidence.
 +Work-in-progress review may inspect a dirty tree, but it cannot establish final acceptance for an uncommitted or different candidate.
 +Missing required specifications, failed checks and stale results remain explicit gaps; neither axis can override the other's unresolved failure.

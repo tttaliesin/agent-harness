@@ -1,6 +1,6 @@
 ---
 name: development-tooling
-description: Design, scaffold, migrate, or review repository development toolchains and repeatable task entry points under workspace policy, including mise, language package managers, version ownership, CI and Dev Container consistency. Use for tool selection or tooling changes, not ordinary application edits or host provisioning.
+description: Design, scaffold, migrate, or review repository development toolchains and repeatable task entry points, including initial product/OpenSpec setup, runtime versions, CI and Dev Containers. Use for first setup or tooling changes, not ordinary application edits or host provisioning.
 ---
 
 # Development tooling
@@ -32,7 +32,8 @@ No-op tests and unspecified required checks are not successful adoption.
 Keep one selector per runtime and one root command surface.
 Installing a common skill does not require replacing an existing Taskfile, justfile or native package script.
 For first use, identify the actual product requirements, commands and available tools, then run only the relevant checks.
-Use the installed OpenSpec CLI directly when OpenSpec setup is part of the task; avoid a second binding or configuration generator.
+For initial product/OpenSpec setup or a binding-free update, read [OpenSpec setup](references/openspec-setup.md): preserve existing tracker and documents, select all seven workflows, and verify real generation and discovery.
+Use the installed OpenSpec CLI directly; existing product commands remain the execution entry points.
 Before implementing or reviewing a selected language profile, read its version, lock and execution constraints:
 
 - [Python](references/development-tooling.md#python)
