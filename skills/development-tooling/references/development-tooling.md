@@ -9,7 +9,7 @@
 
 | 소유자 | 책임 |
 | --- | --- |
-| `agent-harness`의 공통 Harness | 도구 선택 기준, 실행 계약, 재사용 가능한 선언 템플릿과 적용 skill |
+| `agent-harness`의 공통 스킬 | 도구 선택 기준, 재사용 가능한 선언 템플릿과 적용 skill |
 | 각 repository | 프로젝트 목표·결정·상태, 실제 도구 버전, 의존성 lock, 모듈별 명령, 지원 환경, 전환·검증 근거 |
 | `infra/` 공통 개발 환경 | OS·system library·인증서·mise bootstrap을 제공하는 image와 Dev Container scaffold 구현 |
 | 개인 환경·도구 repository | host 설치, shell·editor 연결, 개인 CLI와 설정의 lifecycle |
@@ -18,13 +18,13 @@
 공통 image·host installer·application framework scaffold를 구현하는 별도 도구 플랫폼으로 확장하지 않는다.
 다른 저장소의 설정 변경, 전역 도구 제거, CI·배포 실행은 해당 작업의 범위와 owning skill을 따른다.
 
-## Codex Desktop 공통 Harness 적용
+## 기존 제품에서 공통 스킬 사용
 
-사용자가 공통 Harness 구축을 선택한 저장소는 개발자·에이전트·Lefthook·CI의 공통 명령 진입점으로 `just` 사용
-일반 저장소의 mise tasks 기본값에 대한 명시적 적용 예외이며, 실제 전환 대상과 완료 상태는 각 저장소에서 기록
-기존 runtime 관리자·언어 package manager·native 명령은 유지하고 `just`에서 연결
-같은 검사를 just·mise·Taskfile·CI에 각각 재정의하지 않고 기존 실행 정의 한 곳으로 위임
-이 정책 선언만으로 just 설치·제품 명령·CI 전환 완료를 의미하지 않는 기준
+공통 스킬 설치와 제품 toolchain 전환을 별도 작업으로 구분
+제품에 이미 있는 Taskfile·justfile·mise task·언어별 명령 중 실제 진입점 사용
+같은 검사 본문은 소유 script 한 곳에서 유지하고 개발자·agent·CI가 재사용
+스킬 사용을 위한 명령 래퍼·Adapter·추가 lock 생성 제외
+새 저장소나 명시적으로 요청된 toolchain 전환에는 아래 기본값을 적용하고, 기존 제품 전환은 요구·비용 확인 후 진행
 
 ## 기본 구성
 
@@ -141,7 +141,7 @@ CI에서 변경 가능한 task를 실행하는 일은 해당 CI의 PR trust·cre
 ## 공통 실행 계약
 
 일반 저장소에서 사람과 agent의 root 진입점은 `mise tasks`, `mise run <task>`이며, 임의 native 명령은 `mise exec -- <command>` 사용
-공통 Harness 적용 저장소의 공통 진입점은 위 Codex Desktop 공통 Harness 적용 절에 따라 `just` 사용
+기존 제품에서는 현재 진입점을 유지하고 명시적으로 요청된 도구 전환에서만 변경
 shell activation은 개발자 편의이며 script·CI의 필수 조건이 아니다.
 설치는 명시적으로 수행하고 검증 task의 도구 자동 설치는 비활성화한다.
 
@@ -190,7 +190,7 @@ CI는 같은 명령과 version declaration을 사용하되 runner provisioning·
 
 | 후보 | 기본에서 제외한 이유 | 사용하는 조건 |
 | --- | --- | --- |
-| just | 일반 저장소에서 mise와 task 진입점 중복 | 공통 Harness 적용 저장소의 지정 진입점 또는 mise 제약·구체적 문법 이점이 있는 환경 |
+| just | 일반 저장소에서 mise와 task 진입점 중복 | 이미 채택한 저장소 또는 mise 제약·구체적 문법 이점이 있는 환경 |
 | Task | mise와 orchestration 중복 | 기존 기능의 동등 전환이 어렵거나 YAML task 생태계가 구체적으로 필요한 경우 |
 | Make | 일반 개발 명령에는 file target semantics 부담 | file dependency·증분 빌드가 핵심인 build engine으로 native 유지 |
 | asdf·fnm·nvm | 프로젝트 runtime selector 중복 | mise backend·OS·정책 제약이 있는 명시적 환경 예외 |

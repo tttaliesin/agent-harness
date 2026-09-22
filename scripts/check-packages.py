@@ -24,39 +24,35 @@ try:
 except ImportError:
     yaml = None
 
-VERSION = "0.1.0"
-MATT_NAMES = {
-    "setup-matt-pocock-skills",
-    "domain-modeling",
-    "grill-with-docs",
-    "grilling",
-    "codebase-design",
-    "code-review",
-    "writing-for-agents",
-}
-SUPERPOWERS_NAMES = {
-    "test-driven-development",
-    "verification-before-completion",
-    "receiving-code-review",
-}
+MATT_NAMES = {"domain-modeling", "grilling", "codebase-design", "code-review"}
+SUPERPOWERS_NAMES = {"test-driven-development", "verification-before-completion"}
 SOURCES = {
-    "mattpocock-skills": ("https://github.com/mattpocock/skills", "matt-engineering"),
-    "superpowers": ("https://github.com/obra/superpowers", "superpowers-execution"),
-    "superpowers-debugging": (
-        "https://github.com/obra/superpowers",
-        "superpowers-execution",
-    ),
+    "mattpocock-skills": "https://github.com/mattpocock/skills",
+    "superpowers": "https://github.com/obra/superpowers",
+    "superpowers-debugging": "https://github.com/obra/superpowers",
 }
-PACKAGE_DIRS = (
-    "plugins",
-    "skills",
-    "policies",
-    "templates",
-    "docs",
-    "src",
-    "schemas",
-    "scripts",
-)
+MERGED_SOURCES = {
+    "mattpocock-skills": {
+        "skills/engineering/grill-with-docs/SKILL.md": (
+            "skills/grilling/references/record-decisions.md"
+        ),
+        "skills/productivity/writing-for-agents/SKILL.md": (
+            "skills/markdown-authoring/references/writing-for-agents.md"
+        ),
+    },
+    "superpowers": {
+        "skills/receiving-code-review/SKILL.md": (
+            "skills/code-review/references/receiving-review.md"
+        ),
+    },
+}
+LICENSE_COPIES = {
+    **{f"skills/{name}/LICENSE.txt": "mattpocock-skills" for name in MATT_NAMES},
+    **{f"skills/{name}/LICENSE.txt": "superpowers" for name in SUPERPOWERS_NAMES},
+    "skills/markdown-authoring/LICENSE.mattpocock.txt": "mattpocock-skills",
+    "skills/code-review/LICENSE.superpowers.txt": "superpowers",
+}
+PACKAGE_DIRS = ("skills", "provenance", "docs", "scripts", "tests", "plugins")
 EXTRA_FILES = (
     "THIRD_PARTY_NOTICES.md",
     "pyproject.toml",
@@ -64,8 +60,6 @@ EXTRA_FILES = (
     "mise.toml",
     "mise.lock",
     "justfile",
-    "openspec-profile.json",
-    ".agents/plugins/marketplace.json",
     ".github/workflows/check.yml",
     ".gitattributes",
     ".gitignore",
@@ -239,32 +233,29 @@ def tree_entries(data):
 
 
 def prefix_for(source):
-    return f"plugins/{SOURCES[source['id']][1]}/provenance/{source['id']}"
+    return f"provenance/{source['id']}"
 
 
 def target_for(source_id, upstream):
     parts = canonical_path(upstream)
-    package = SOURCES[source_id][1]
     if upstream == "LICENSE":
-        if source_id == "superpowers-debugging":
-            return f"plugins/{package}/provenance/{source_id}/LICENSE.txt"
-        return f"plugins/{package}/LICENSE.txt"
+        return f"provenance/{source_id}/LICENSE.txt"
+    if upstream in MERGED_SOURCES.get(source_id, {}):
+        return MERGED_SOURCES[source_id][upstream]
     if source_id == "mattpocock-skills":
         require(
             len(parts) >= 4 and parts[0] == "skills" and parts[2] in MATT_NAMES,
             f"unselected Matt path: {upstream}",
         )
-        category = (
-            "productivity" if parts[2] in {"grilling", "writing-for-agents"} else "engineering"
-        )
+        category = "productivity" if parts[2] == "grilling" else "engineering"
         require(parts[1] == category, f"incorrect upstream category: {upstream}")
-        return f"plugins/{package}/skills/" + "/".join(parts[2:])
+        return "skills/" + "/".join(parts[2:])
     names = SUPERPOWERS_NAMES if source_id == "superpowers" else {"systematic-debugging"}
     require(
         len(parts) >= 3 and parts[0] == "skills" and parts[1] in names,
         f"unselected Superpowers path: {upstream}",
     )
-    return f"plugins/{package}/" + upstream if source_id == "superpowers" else upstream
+    return upstream
 
 
 def validate_sources(root, sources, artifacts):
@@ -282,7 +273,7 @@ def validate_sources(root, sources, artifacts):
             label="source",
         )
         sid = source["id"]
-        require(source["repository"] == SOURCES[sid][0], f"{sid}: unexpected repository")
+        require(source["repository"] == SOURCES[sid], f"{sid}: unexpected repository")
         require(
             isinstance(source["commit"], str) and HEX40.fullmatch(source["commit"]),
             f"{sid}: commit must be a 40-hex pin",
@@ -320,6 +311,7 @@ def validate_sources(root, sources, artifacts):
             if sid == "superpowers"
             else {"systematic-debugging"}
         )
+        expected_names = expected_names | {p.split("/")[-2] for p in MERGED_SOURCES.get(sid, {})}
         found_names = {p.split("/")[-2] for p in selected if p.endswith("/SKILL.md")}
         require(
             found_names == expected_names,
@@ -437,12 +429,17 @@ def validate_sources(root, sources, artifacts):
             and license_info["path"] in notices,
             f"{sid}: missing third-party notice",
         )
-    # Source-backed skill files may not be quietly added without provenance.
-    for package in ("matt-engineering", "superpowers-execution"):
+    # A selected skill must carry its license when installed on its own.
+    for relative, sid in LICENSE_COPIES.items():
+        require(
+            read(root, relative) == read(root, f"provenance/{sid}/LICENSE.txt"),
+            f"standalone skill license mismatch: {relative}",
+        )
+    for name in MATT_NAMES | SUPERPOWERS_NAMES:
         for relative in artifacts:
-            if relative.startswith(f"plugins/{package}/skills/"):
+            if relative.startswith(f"skills/{name}/"):
                 require(
-                    relative in all_targets,
+                    relative in all_targets or relative in LICENSE_COPIES,
                     f"skill file has no upstream correspondence: {relative}",
                 )
 
@@ -503,132 +500,16 @@ def validate_active_skills(root, artifacts):
         )
         names[name.casefold()] = relative
         entries.append(relative)
-    expected = {name: f"plugins/matt-engineering/skills/{name}/SKILL.md" for name in MATT_NAMES}
-    expected.update(
-        {
-            name: f"plugins/superpowers-execution/skills/{name}/SKILL.md"
-            for name in SUPERPOWERS_NAMES
-        }
-    )
-    expected["systematic-debugging"] = "skills/systematic-debugging/SKILL.md"
+    expected = {
+        name: f"skills/{name}/SKILL.md"
+        for name in MATT_NAMES | SUPERPOWERS_NAMES | {"systematic-debugging"}
+    }
     for name, path in expected.items():
         require(
             names.get(name) == path,
             f"required active skill missing or relocated: {name}",
         )
     return entries
-
-
-def validate_manifests(root, artifacts):
-    manifests = [
-        p for p in artifacts if re.fullmatch(r"plugins/[^/]+/\.codex-plugin/plugin\.json", p)
-    ]
-    required = {
-        f"plugins/{p}/.codex-plugin/plugin.json"
-        for p in ("matt-engineering", "superpowers-execution")
-    }
-    require(required <= set(manifests), "missing required plugin manifest")
-    package_folders = {p.split("/")[1] for p in artifacts if p.startswith("plugins/")}
-    require(
-        package_folders == {p.split("/")[1] for p in manifests},
-        "plugin directory missing manifest",
-    )
-    for path in manifests:
-        manifest = load_json(read(root, path))
-        keys(
-            manifest,
-            {"name", "version", "description", "author", "skills", "interface"},
-            {"id", "homepage", "repository", "license", "keywords"},
-            label=path,
-        )
-        require(manifest["name"] == path.split("/")[1], f"{path}: name must match directory")
-        require(
-            manifest["version"] == VERSION,
-            f"{path}: incompatible package version (expected {VERSION})",
-        )
-        if manifest["name"] in {"matt-engineering", "superpowers-execution"}:
-            require(
-                manifest.get("license") == "MIT",
-                f"{path}: missing or incorrect plugin license",
-            )
-        require(
-            manifest["skills"] in {"./skills", "./skills/"},
-            f"{path}: unsupported skills path",
-        )
-        nonempty(manifest["description"], f"{path}: description")
-        keys(manifest["author"], {"name"}, {"email", "url"}, label=f"{path}: author")
-        nonempty(manifest["author"]["name"], f"{path}: author name")
-        interface = manifest["interface"]
-        keys(
-            interface,
-            {
-                "displayName",
-                "shortDescription",
-                "longDescription",
-                "developerName",
-                "category",
-                "capabilities",
-                "defaultPrompt",
-            },
-            {
-                "websiteURL",
-                "privacyPolicyURL",
-                "termsOfServiceURL",
-                "brandColor",
-                "composerIcon",
-                "logo",
-                "logoDark",
-                "screenshots",
-            },
-            label=f"{path}: interface",
-        )
-        for field in (
-            "displayName",
-            "shortDescription",
-            "longDescription",
-            "developerName",
-            "category",
-        ):
-            nonempty(interface[field], f"{path}: {field}")
-        require(
-            isinstance(interface["capabilities"], list)
-            and all(isinstance(c, str) and c.strip() for c in interface["capabilities"]),
-            f"{path}: invalid capabilities",
-        )
-        prompts = interface["defaultPrompt"]
-        if isinstance(prompts, str):
-            prompts = [prompts]
-        require(
-            isinstance(prompts, list)
-            and 1 <= len(prompts) <= 3
-            and all(isinstance(p, str) and 0 < len(p) <= 128 for p in prompts),
-            f"{path}: invalid defaultPrompt",
-        )
-        require("[TODO:" not in json.dumps(manifest), f"{path}: manifest placeholder")
-        base = "/".join(path.split("/")[:2])
-        skill_dir = safe_path(root, base + "/skills")
-        require(
-            skill_dir.is_dir()
-            and any(p.startswith(base + "/skills/") and p.endswith("/SKILL.md") for p in artifacts),
-            f"{path}: empty plugin skills",
-        )
-        for field in ("composerIcon", "logo", "logoDark"):
-            if field in interface:
-                require(
-                    isinstance(interface[field], str) and interface[field].startswith("./"),
-                    f"{path}: invalid asset path",
-                )
-                read(root, base + "/" + interface[field][2:])
-        require(
-            isinstance(interface.get("screenshots", []), list),
-            f"{path}: invalid screenshots",
-        )
-        for asset in interface.get("screenshots", []):
-            require(
-                isinstance(asset, str) and asset.startswith("./assets/"),
-                f"{path}: invalid screenshot",
-            )
-            read(root, base + "/" + asset[2:])
 
 
 def markdown_body(text):
@@ -722,15 +603,10 @@ def resolve_link(root, source, raw):
 
 
 def validate_references(root, artifacts, entries):
-    # All new plugin prose plus required references recursively reached from any
-    # active root skill. Inert upstream .source and .patch files are never loaded.
+    # Maintained entrypoints and recursively required references; inert provenance is not guidance.
     pending = set(entries)
-    pending.update(
-        p
-        for p in artifacts
-        if p.endswith(".md") and p.startswith("plugins/") and "/provenance/" not in p
-    )
-    pending.update({"THIRD_PARTY_NOTICES.md", "docs/upstream-selection.md"})
+    pending.update(p for p in artifacts if p.endswith(".md") and p.startswith("docs/"))
+    pending.update({"THIRD_PARTY_NOTICES.md", "README.md", "AGENTS.md"})
     visited = set()
     while pending:
         relative = pending.pop()
@@ -756,7 +632,7 @@ def verify(root, lock=None):
         lock = load_json(read(root, "upstream.lock.json"))
     keys(lock, {"schema_version", "sources", "artifacts"}, label="lock")
     require(
-        type(lock["schema_version"]) is int and lock["schema_version"] == 1,
+        type(lock["schema_version"]) is int and lock["schema_version"] == 2,
         "unsupported lock schema_version",
     )
     artifacts = lock["artifacts"]
@@ -774,13 +650,13 @@ def verify(root, lock=None):
     require(not extra, f"unlocked artifacts: {extra}")
     changed = [path for path in artifacts if current[path] != artifacts[path]]
     require(not changed, f"artifact hash mismatch: {changed}")
-    validate_manifests(root, current)
     entries = validate_active_skills(root, current)
+    require(not any(p.startswith("plugins/") for p in current), "legacy plugin supply remains")
     validate_sources(root, lock["sources"], current)
     references = validate_references(root, current, entries)
     return {
         "status": "PASS",
-        "version": VERSION,
+        "layout": "skills",
         "artifacts": len(current),
         "active_skills": len(entries),
         "markdown_files": references,

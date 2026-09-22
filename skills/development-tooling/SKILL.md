@@ -30,6 +30,9 @@ Verify supported upstream versions when adopting, fill actual module commands, t
 No-op tests and unspecified required checks are not successful adoption.
 
 Keep one selector per runtime and one root command surface.
+Installing a common skill does not require replacing an existing Taskfile, justfile or native package script.
+For first use, identify the actual product requirements, commands and available tools, then run only the relevant checks.
+Use the installed OpenSpec CLI directly when OpenSpec setup is part of the task; avoid a second binding or configuration generator.
 Before implementing or reviewing a selected language profile, read its version, lock and execution constraints:
 
 - [Python](references/development-tooling.md#python)

@@ -61,6 +61,10 @@ Read only the material listed for the current route:
   Read [parallel handoff policy](references/github-operations.md#병렬-local-구현은-별도-skill로-handoff한다)
   and retain ownership of Issue and remote operations.
 
+For authorized PR follow-up or handing repository work to another task, read
+[follow-up and handoff](references/followup-and-handoff.md). Preserve the established endpoint;
+check the current candidate before writing or reusing evidence.
+
 ## Protect branch and worktree state
 
 For branch switching, worktree removal, and local or remote branch cleanup, use the bundled

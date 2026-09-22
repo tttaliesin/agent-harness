@@ -5,7 +5,7 @@ node_modules/
 .venv/
 .pytest_cache/
 .ruff_cache/
-.harness/
+.reports/
 dist/
 build/
 *.egg-info/

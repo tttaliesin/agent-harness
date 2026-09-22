@@ -1,0 +1,34 @@
+--- skills/engineering/domain-modeling/SKILL.md
++++ skills/domain-modeling/SKILL.md
+@@ -6,6 +6,13 @@
+ # Domain Modeling
+ 
+ Actively build and sharpen the project's domain model as you design. This is the *active* discipline: challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `CONTEXT.md` for vocabulary is not this skill: that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
++
++## Existing workflow
++
++Use the repository's existing glossary and decision locations from the current task, repository instructions and applicable OpenSpec change.
++The layouts below are defaults only when no established layout exists.
++Create or update documents only within the authorized task; a read-only discussion does not authorize writes.
++Record implementation decisions in the existing OpenSpec design or ADR source, without maintaining a second specification.
+ 
+ ## File structure
+ 
+@@ -37,7 +44,7 @@
+ │       └── docs/adr/
+ ```
+ 
+-Create files lazily: only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
++When document creation is authorized, create files lazily in the established location: only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
+ 
+ ## During the session
+ 
+@@ -59,7 +66,7 @@
+ 
+ ### Update CONTEXT.md inline
+ 
+-When a term is resolved, update `CONTEXT.md` right there. Don't batch these up: capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
++When a term is resolved and edits are authorized, update the existing glossary right there. Don't batch these up: capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+ 
+ `CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+ 

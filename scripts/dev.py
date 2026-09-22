@@ -18,7 +18,7 @@ def run(argv, env):
 
 def main():
     action = sys.argv[1] if len(sys.argv) == 2 else "doctor"
-    if action not in {"doctor", "sync", "check", "test", "build", "format"}:
+    if action not in {"doctor", "sync", "check", "test", "format"}:
         raise SystemExit("Unknown task")
     selected = tomllib.loads((ROOT / "mise.toml").read_text())["tools"]
     actual_python = ".".join(str(value) for value in sys.version_info[:3])
@@ -40,22 +40,19 @@ def main():
         return
     prefix = [uv, "run", "--no-sync"]
     if action == "format":
-        run(prefix + ["ruff", "format", "src", "scripts", "tests"], env)
+        run(prefix + ["ruff", "format", "scripts", "tests"], env)
         return
     if action == "check":
-        run(prefix + ["ruff", "check", "src", "scripts", "tests"], env)
+        run(prefix + ["ruff", "check", "scripts", "tests"], env)
         run(prefix + ["python", "scripts/check-packages.py"], env)
-        run(prefix + ["python", "scripts/check-templates.py"], env)
     if action in {"check", "test"}:
-        report = ".harness/development/reports/pytest.xml"
+        report = ".reports/pytest.xml"
         (ROOT / report).parent.mkdir(parents=True, exist_ok=True)
         # Keep native Windows test paths below MAX_PATH without changing host policy.
-        temporary = f".harness/t-{uuid.uuid4().hex[:12]}"
+        temporary = f".reports/t-{uuid.uuid4().hex[:12]}"
         if (ROOT / temporary).exists():
             raise SystemExit("Test directory collision; rerun to select a fresh path")
         run(prefix + ["pytest", "-q", f"--basetemp={temporary}", f"--junitxml={report}"], env)
-    if action in {"check", "build"}:
-        run(prefix + ["python", "-m", "build", "--no-isolation"], env)
 
 
 if __name__ == "__main__":

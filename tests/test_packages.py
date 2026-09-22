@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import importlib.util
 import json
@@ -30,7 +29,7 @@ def hash_file(path):
 
 class PackageTests(unittest.TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(prefix="harness-packages-test-")
+        self.temporary = tempfile.TemporaryDirectory(prefix="skills-check-")
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name) / "package"
         self.root.mkdir()
@@ -95,11 +94,11 @@ class PackageTests(unittest.TestCase):
             result = checks.verify(self.root)
         self.assertEqual("PASS", result["status"])
         self.assertFalse(result["native_installation_validated"])
-        self.assertGreaterEqual(result["active_skills"], 11)
+        self.assertEqual(19, result["active_skills"])
 
     def test_check_cli_never_refreshes_changed_bytes(self):
         before = (self.root / "upstream.lock.json").read_bytes()
-        path = "plugins/matt-engineering/NOTICE.md"
+        path = "docs/upstream-selection.md"
         self.write(path, (self.root / path).read_bytes() + b"\nChanged.\n")
         result, report = self.command("check-packages.py")
         self.assertEqual(1, result.returncode)
@@ -112,11 +111,11 @@ class PackageTests(unittest.TestCase):
         self.failure("unlocked artifacts")
 
     def test_missing_support_file_is_rejected(self):
-        (self.root / "plugins/matt-engineering/skills/domain-modeling/ADR-FORMAT.md").unlink()
+        (self.root / "skills/domain-modeling/ADR-FORMAT.md").unlink()
         self.failure("missing artifacts")
 
     def test_removed_required_skill_cannot_be_hidden_by_rehashing(self):
-        prefix = "plugins/matt-engineering/skills/grilling/"
+        prefix = "skills/grilling/"
         path = (self.root / prefix).resolve()
         self.assertTrue(path.is_relative_to(self.root.resolve()))
         shutil.rmtree(path)
@@ -126,11 +125,11 @@ class PackageTests(unittest.TestCase):
         self.failure("required active skill missing")
 
     def test_missing_license_is_rejected(self):
-        (self.root / "plugins/superpowers-execution/LICENSE.txt").unlink()
+        (self.root / "provenance/superpowers/LICENSE.txt").unlink()
         self.failure("missing file|missing artifacts")
 
     def test_rehashed_changed_license_is_rejected(self):
-        relative = "plugins/matt-engineering/LICENSE.txt"
+        relative = "provenance/mattpocock-skills/LICENSE.txt"
         self.write(relative, "MIT\n")
         self.rehash(relative)
         self.failure("adapted hash mismatch|license integrity")
@@ -144,8 +143,8 @@ class PackageTests(unittest.TestCase):
         self.rehash("THIRD_PARTY_NOTICES.md")
         self.failure("missing third-party notice")
 
-    def test_duplicate_name_between_root_and_plugin_is_rejected(self):
-        relative = "skills/test-driven-development/SKILL.md"
+    def test_duplicate_name_in_nested_skill_is_rejected(self):
+        relative = "skills/duplicate/test-driven-development/SKILL.md"
         self.write(
             relative,
             "---\nname: test-driven-development\ndescription: Duplicate\n---\n# Duplicate\n",
@@ -153,37 +152,23 @@ class PackageTests(unittest.TestCase):
         self.rehash(relative)
         self.failure("duplicate active skill name")
 
-    def test_duplicate_debugging_plugin_is_rejected(self):
-        relative = "plugins/superpowers-execution/skills/systematic-debugging/SKILL.md"
+    def test_duplicate_debugging_skill_is_rejected(self):
+        relative = "skills/duplicate/systematic-debugging/SKILL.md"
         self.write(relative, (self.root / "skills/systematic-debugging/SKILL.md").read_bytes())
         self.rehash(relative)
         self.failure("duplicate active skill name")
 
-    def test_missing_version_and_unsupported_hooks_are_rejected(self):
-        relative = "plugins/matt-engineering/.codex-plugin/plugin.json"
-        original = json.loads((self.root / relative).read_text())
-        for change, error in [
-            ("version", "missing fields"),
-            ("hooks", "unknown fields"),
-            ("license", "plugin license"),
-        ]:
-            with self.subTest(change=change):
-                manifest = copy.deepcopy(original)
-                if change == "hooks":
-                    manifest["hooks"] = "./hooks.json"
-                else:
-                    del manifest[change]
-                self.write(relative, json.dumps(manifest))
-                self.rehash(relative)
-                self.failure(error)
-
-    def test_incompatible_bundle_version_is_rejected(self):
-        relative = "plugins/superpowers-execution/.codex-plugin/plugin.json"
-        manifest = json.loads((self.root / relative).read_text())
-        manifest["version"] = "0.2.0"
-        self.write(relative, json.dumps(manifest))
+    def test_standalone_skill_license_is_required(self):
+        relative = "skills/code-review/LICENSE.txt"
+        self.write(relative, "Altered license\n")
         self.rehash(relative)
-        self.failure("incompatible package version")
+        self.failure("standalone skill license mismatch")
+
+    def test_legacy_plugin_supply_is_rejected(self):
+        relative = "plugins/old/.codex-plugin/plugin.json"
+        self.write(relative, "{}\n")
+        self.rehash(relative)
+        self.failure("legacy plugin supply remains")
 
     def test_missing_source_record_is_rejected(self):
         self.lock["sources"].pop()
@@ -210,10 +195,7 @@ class PackageTests(unittest.TestCase):
         record = next(
             p for p in source["patches"] if p["upstream_path"].endswith("grilling/SKILL.md")
         )
-        relative = (
-            "plugins/matt-engineering/provenance/mattpocock-skills/files/"
-            f"{record['upstream_path']}.source"
-        )
+        relative = f"provenance/mattpocock-skills/files/{record['upstream_path']}.source"
         self.write(relative, (self.root / relative).read_bytes() + b"\nForged.\n")
         self.rehash(relative)
         record["upstream_sha256"] = hash_file(self.root / relative)
@@ -255,7 +237,7 @@ class PackageTests(unittest.TestCase):
         self.failure("invalid target mapping")
 
     def test_broken_relative_reference_is_rejected_after_rehash(self):
-        relative = "plugins/matt-engineering/NOTICE.md"
+        relative = "docs/upstream-selection.md"
         for text in [
             "[Required](missing.md)",
             "[Required][r]\n\n[r]: missing.md",
@@ -267,19 +249,19 @@ class PackageTests(unittest.TestCase):
                 self.failure("missing file or directory")
 
     def test_undefined_reference_is_rejected(self):
-        relative = "plugins/matt-engineering/NOTICE.md"
+        relative = "docs/upstream-selection.md"
         self.write(relative, "# Notice\n\n[Required][unknown]\n")
         self.rehash(relative)
         self.failure("undefined Markdown reference")
 
     def test_relative_reference_cannot_escape_root(self):
-        relative = "plugins/matt-engineering/NOTICE.md"
+        relative = "docs/upstream-selection.md"
         self.write(relative, "# Notice\n\n[Required](%2e%2e/%2e%2e/%2e%2e/escape.md)\n")
         self.rehash(relative)
         self.failure("reference escapes root")
 
     def test_fenced_examples_and_external_links_are_not_dependencies(self):
-        relative = "plugins/matt-engineering/NOTICE.md"
+        relative = "docs/upstream-selection.md"
         self.write(
             relative,
             "# Notice\n\n```markdown\n[Example](missing.md)\n```\n\n[Upstream](https://github.com/mattpocock/skills)\n",
@@ -291,7 +273,7 @@ class PackageTests(unittest.TestCase):
         outside = Path(self.temporary.name) / "outside"
         outside.mkdir()
         (outside / "secret.txt").write_text("must not be read")
-        link = self.root / "plugins/matt-engineering/escape"
+        link = self.root / "skills/escape"
         try:
             link.symlink_to(outside, target_is_directory=True)
         except OSError:
@@ -343,37 +325,15 @@ class PackageTests(unittest.TestCase):
 
     def test_refresh_dry_run_preserves_lock_and_source_records(self):
         before = (self.root / "upstream.lock.json").read_bytes()
-        self.write("templates/new-core-template.txt", "parent-owned template\n")
+        self.write("docs/new-reference.md", "# Maintainer reference\n")
         result, report = self.command("refresh-package-lock.py")
         self.assertEqual(0, result.returncode, report)
         self.assertFalse(report["written"])
-        self.assertIn("templates/new-core-template.txt", report["added"])
+        self.assertIn("docs/new-reference.md", report["added"])
         self.assertEqual(before, (self.root / "upstream.lock.json").read_bytes())
 
-    def test_explicit_refresh_integrates_core_and_preserves_sources(self):
-        manifest = json.loads(
-            (self.root / "plugins/matt-engineering/.codex-plugin/plugin.json").read_text()
-        )
-        manifest["name"] = "workflow-core"
-        manifest.pop("license")
-        self.write("plugins/workflow-core/.codex-plugin/plugin.json", json.dumps(manifest))
-        self.write(
-            "plugins/workflow-core/skills/core-flow/SKILL.md",
-            "---\nname: core-flow\ndescription: Route the existing workflow.\n---\n# Core flow\n",
-        )
-        self.write("policies/core.md", "# Core policy\n")
-        original_sources = copy.deepcopy(self.lock["sources"])
-        result, report = self.command("refresh-package-lock.py", "--write")
-        self.assertEqual(0, result.returncode, report)
-        self.assertTrue(report["written"])
-        updated = json.loads((self.root / "upstream.lock.json").read_text())
-        self.assertEqual(original_sources, updated["sources"])
-        self.assertIn("policies/core.md", updated["artifacts"])
-        result, report = self.command("check-packages.py")
-        self.assertEqual(0, result.returncode, report)
-
     def test_refresh_refuses_to_bless_changed_upstream_adaptation(self):
-        relative = "plugins/matt-engineering/skills/grilling/SKILL.md"
+        relative = "skills/grilling/SKILL.md"
         self.write(relative, (self.root / relative).read_bytes() + b"\nChanged.\n")
         before = (self.root / "upstream.lock.json").read_bytes()
         result, report = self.command("refresh-package-lock.py", "--write")

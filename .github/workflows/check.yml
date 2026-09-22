@@ -1,4 +1,4 @@
-name: Shared Harness checks
+name: Skill repository checks
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: harness-${{ github.workflow }}-${{ github.ref }}
+  group: skills-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

@@ -51,3 +51,6 @@ If workers overlap, consume unfinished sibling output, or discover an unfixed sh
 stop only the affected parallel path and serialize that boundary under the integration owner.
 Continue independent authorized work when safe. Do not turn a coordination problem into remote
 mutation, forced integration, or destructive cleanup.
+
+For a repository handoff, use the available github-operations follow-up and handoff guidance.
+If unavailable, record the worktree, branch, candidate, valid checks, outstanding findings and next action in the existing task record.

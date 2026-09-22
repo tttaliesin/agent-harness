@@ -43,6 +43,8 @@ Then load only the conditional reference required by the artifact or change:
 - For generated artifacts, existing-document edits, validation, and completion review, read
   [Editing and validation](references/markdown-authoring/editing-and-validation.md).
 
+For AGENTS.md or similar agent instructions, read [writing for agents](references/writing-for-agents.md).
+
 ## Finish deliberately
 
 - Keep commands copyable, code fences balanced, links descriptive, and technical identifiers canonical.

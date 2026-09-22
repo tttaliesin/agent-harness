@@ -11,15 +11,12 @@ doctor:
 sync:
     python scripts/dev.py sync
 
-# Source checks, real behavioral tests and the distribution build.
+# Maintainer source checks and behavioral tests; no consumer runtime build.
 check:
     python scripts/dev.py check
 
 test:
     python scripts/dev.py test
-
-build:
-    python scripts/dev.py build
 
 # Deliberately edits source formatting; never called by check.
 format:

@@ -1,27 +1,18 @@
-[build-system]
-requires = ["setuptools>=75,<83"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "harnesskit"
-version = "0.1.0"
-description = "Local product verification and evidence contracts for the common Harness"
+name = "agent-harness-maintenance"
+version = "0.2.0"
+description = "Maintainer checks for the agent-harness skill repository"
 requires-python = ">=3.12"
-dependencies = ["PyYAML>=6.0.2,<7", "jsonschema>=4.23,<5"]
-
-[project.scripts]
-harnesskit = "harnesskit.cli:main"
-harnesskit-codex-hook = "harnesskit.native_hook:main"
+dependencies = []
 
 [dependency-groups]
-dev = ["pytest>=8.3,<10", "ruff>=0.11,<1", "build>=1.2,<2", "setuptools>=75,<83"]
+dev = ["PyYAML>=6.0.2,<7", "pytest>=8.3,<10", "ruff>=0.11,<1"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.uv]
+package = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
 
 [tool.ruff]
 target-version = "py312"

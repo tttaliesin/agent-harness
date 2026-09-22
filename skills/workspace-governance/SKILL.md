@@ -37,5 +37,5 @@ Resolve reachable evidence and complete independent authorized work before stopp
 Edit rules directly in the owning skill’s references; do not duplicate them in navigation pages.
 State durable objectives and safety boundaries separately from replaceable implementation choices.
 Do not turn one owner's current file layout, schema, workflow, or retry mechanism into a workspace-wide requirement unless the objective depends on that exact mechanism.
-Keep skill-specific helpers inside their owning skill. Shared Harness execution code belongs in the same package's harnesskit module, with the behavioral tests and evidence required by its implementation contract. Do not create a second copy of policy prose or a separate synchronization service.
+Keep helpers inside the skill that uses them, with tests proportionate to their behavior. Product commands, reports and resource management remain in the owning repository. Supply common instructions through installed skills; avoid a second policy copy, generic execution engine or synchronization service.
 Use the current task and relevant repository documentation for working context.

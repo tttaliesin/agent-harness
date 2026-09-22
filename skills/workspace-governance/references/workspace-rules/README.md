@@ -1,7 +1,7 @@
 # Workspace Rules
 
 Workspace의 저장소 분류, 공통 작업 규칙과 이를 전달하는 coding-agent skill을 관리한다.
-공통 규칙·스킬은 Agent Harness의 공통 Harness 패키지에 함께 배치하며 이 경로의 `workspace-rules`는 규칙 문서 묶음 이름
+공통 규칙·스킬은 Agent Harness의 공통 스킬 저장소에 함께 배치하며 이 경로의 `workspace-rules`는 규칙 문서 묶음 이름
 실제 실행 명령과 현재 운영 상태는 해당 구현 저장소에서 확인한다.
 
 ## 필요한 문서 찾기
@@ -41,5 +41,5 @@ Category는 용도별 폴더이며 Git repository나 현재 저장소 목록이 
 그 공백을 메우기 위한 category-level `index.md`는 만들지 않는다.
 공통 skill은 전달하는 규칙의 소유 저장소에, 특정 정본의 운영 skill은 그 정본과 함께 둔다.
 범용 개발 지원 skill은 `tools/`에 둔다.
-사용자가 선택한 공통 Harness는 workspace 정책·범용 개발 스킬·지원 코드를 `tools/agent-harness` 한 곳에서 관리
+공통 스킬은 workspace 정책·범용 개발 지침·소유 스킬의 보조 도구를 `tools/agent-harness` 한 곳에서 관리
 정책 원문은 해당 소유 스킬 references에 한 번만 두며 category별 별도 정책 저장소나 상위 workspace AGENTS 생성은 불필요

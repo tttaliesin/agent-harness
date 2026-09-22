@@ -17,7 +17,7 @@ Category·소유권·승인 경계는 Agent Harness의 workspace-governance 스�
 ## 지식과 구현의 배치
 
 별도 소유할 지식·결정이 실제로 있을 때만 `governance/` 활용
-공통 Harness 정책을 복제하는 별도 저장소나 상위 workspace 지침 파일을 만드는 근거로 사용하지 않는 기준
+공통 스킬 정책을 복제하는 별도 저장소나 상위 workspace 지침 파일을 만드는 근거로 사용하지 않는 기준
 공통 지식의 형식·배치·수명주기는 해당 지식을 소유한 저장소에서 정의
 제품 기능은 `products/`, 실행 기반은 `infra/`, 개발 도구는 `tools/`에서 관리
 Source·configuration·test·분석·실행 근거는 이를 생산한 저장소 또는 자료 소유 시스템에서 관리

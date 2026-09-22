@@ -14,10 +14,10 @@ product 기능, product 배포, 또는 공통 runtime 자체를 제공하지 않
 `SKILL.md`, harness별 metadata, 참고 자료와 같은 package 구성은 함께 version control할 수 있다.
 범용 [Markdown authoring](https://github.com/tttaliesin/agent-harness/tree/main/skills/markdown-authoring)과 [GitHub operations](https://github.com/tttaliesin/agent-harness/tree/main/skills/github-operations) 절차는 Agent Harness가 소유
 
-공통 Harness는 기존 스킬·정책과 부족한 실행 지원 코드를 Agent Harness 한 저장소에서 관리
+기존 스킬·정책·필요한 보조 자료는 Agent Harness의 skills 디렉터리에서 관리
 Workspace의 소유권·승인·trust 정책과 범용 GitHub 작업 절차는 같은 패키지 안에서 각 소유 스킬로 구분
 특정 시스템의 운영 계약을 수행하는 스킬은 해당 구현 저장소가 소유
-스킬 안의 보조 scripts와 기존 명령을 재사용하고 별도 Harness 계층에서 같은 절차를 재작성하지 않는 기준
+스킬 안의 보조 scripts와 기존 명령을 재사용하고 제품 명령·상태 관리 계층을 중복 작성하지 않는 기준
 
 ## Codex 설정
 
