@@ -66,7 +66,8 @@ def main(argv=None):
         )
         if args.write:
             checks.require(
-                lock_path.read_bytes() == before, "lock changed during refresh; retry after review"
+                lock_path.read_bytes() == before,
+                "lock changed during refresh; retry after review",
             )
             data = (json.dumps(lock, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
             fd, temporary = tempfile.mkstemp(prefix=".package-lock-", suffix=".tmp", dir=root)
@@ -81,7 +82,8 @@ def main(argv=None):
                 "artifacts changed during refresh; retry after review",
             )
             checks.require(
-                lock_path.read_bytes() == before, "lock changed during refresh; retry after review"
+                lock_path.read_bytes() == before,
+                "lock changed during refresh; retry after review",
             )
             os.replace(temporary, lock_path)
             temporary = None

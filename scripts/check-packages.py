@@ -42,19 +42,41 @@ SUPERPOWERS_NAMES = {
 SOURCES = {
     "mattpocock-skills": ("https://github.com/mattpocock/skills", "matt-engineering"),
     "superpowers": ("https://github.com/obra/superpowers", "superpowers-execution"),
-    "superpowers-debugging": ("https://github.com/obra/superpowers", "superpowers-execution"),
+    "superpowers-debugging": (
+        "https://github.com/obra/superpowers",
+        "superpowers-execution",
+    ),
 }
-PACKAGE_DIRS = ("plugins", "skills", "policies", "templates", "docs")
+PACKAGE_DIRS = (
+    "plugins",
+    "skills",
+    "policies",
+    "templates",
+    "docs",
+    "src",
+    "schemas",
+    "scripts",
+)
 EXTRA_FILES = (
     "THIRD_PARTY_NOTICES.md",
-    "scripts/check-packages.py",
-    "scripts/refresh-package-lock.py",
+    "pyproject.toml",
+    "uv.lock",
+    "mise.toml",
+    "mise.lock",
+    "justfile",
+    "openspec-profile.json",
+    ".agents/plugins/marketplace.json",
+    ".github/workflows/check.yml",
+    ".gitattributes",
+    ".gitignore",
+    "AGENTS.md",
+    "README.md",
 )
 IGNORED_DIRS = {"__pycache__", "node_modules", ".git", ".pytest_cache", ".venv"}
 HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
-RESERVED = re.compile(r"(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?\Z", re.I)
+RESERVED = re.compile(r"(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?\Z", re.IGNORECASE)
 
 
 class PackageError(ValueError):
@@ -73,7 +95,8 @@ def sha256(data):
 def keys(value, required, optional=(), label="record"):
     require(isinstance(value, dict), f"{label}: expected object")
     require(
-        set(required) <= value.keys(), f"{label}: missing fields {set(required) - value.keys()}"
+        set(required) <= value.keys(),
+        f"{label}: missing fields {set(required) - value.keys()}",
     )
     require(
         value.keys() <= set(required) | set(optional),
@@ -82,12 +105,18 @@ def keys(value, required, optional=(), label="record"):
 
 
 def nonempty(value, label):
-    require(isinstance(value, str) and bool(value.strip()), f"{label}: expected nonempty string")
+    require(
+        isinstance(value, str) and bool(value.strip()),
+        f"{label}: expected nonempty string",
+    )
 
 
 def canonical_path(raw):
     nonempty(raw, "path")
-    require("\\" not in raw and ":" not in raw and not raw.startswith("/"), f"unsafe path: {raw}")
+    require(
+        "\\" not in raw and ":" not in raw and not raw.startswith("/"),
+        f"unsafe path: {raw}",
+    )
     parts = raw.split("/")
     require(
         all(
@@ -166,13 +195,21 @@ def inventory(root):
             for name in dirs + files:
                 relative = (Path(parent) / name).relative_to(root).as_posix()
                 safe_path(root, relative)
-                require(relative.casefold() not in folded, f"case-colliding path: {relative}")
+                require(
+                    relative.casefold() not in folded,
+                    f"case-colliding path: {relative}",
+                )
                 folded[relative.casefold()] = relative
-            dirs[:] = sorted(d for d in dirs if d not in IGNORED_DIRS)
+            dirs[:] = sorted(
+                d for d in dirs if d not in IGNORED_DIRS and not d.endswith(".egg-info")
+            )
             for name in sorted(files):
                 if name.endswith((".pyc", ".pyo")):
                     continue
                 relative = (Path(parent) / name).relative_to(root).as_posix()
+                if relative == "templates/binding.json":
+                    # Derived from this lock; verified separately to avoid a hash cycle.
+                    continue
                 result[relative] = sha256(read(root, relative))
     for relative in EXTRA_FILES:
         result[relative] = sha256(read(root, relative))
@@ -252,7 +289,10 @@ def validate_sources(root, sources, artifacts):
         )
         prefix = prefix_for(source)
         commit = read(root, f"{prefix}/commit.raw")
-        require(git_oid("commit", commit) == source["commit"], f"{sid}: commit proof mismatch")
+        require(
+            git_oid("commit", commit) == source["commit"],
+            f"{sid}: commit proof mismatch",
+        )
         match = re.match(rb"tree ([0-9a-f]{40})\n", commit)
         require(match is not None, f"{sid}: invalid Git commit tree")
         root_tree = match[1].decode()
@@ -281,7 +321,10 @@ def validate_sources(root, sources, artifacts):
             else {"systematic-debugging"}
         )
         found_names = {p.split("/")[-2] for p in selected if p.endswith("/SKILL.md")}
-        require(found_names == expected_names, f"{sid}: required skill selection is incomplete")
+        require(
+            found_names == expected_names,
+            f"{sid}: required skill selection is incomplete",
+        )
         for patch in patches:
             keys(
                 patch,
@@ -292,16 +335,19 @@ def validate_sources(root, sources, artifacts):
             upstream = patch["upstream_path"]
             expected_target = target_for(sid, upstream)
             require(
-                patch["target"] == expected_target, f"{sid}: invalid target mapping: {upstream}"
+                patch["target"] == expected_target,
+                f"{sid}: invalid target mapping: {upstream}",
             )
             require(
-                expected_target not in all_targets, f"duplicate source target: {expected_target}"
+                expected_target not in all_targets,
+                f"duplicate source target: {expected_target}",
             )
             all_targets.add(expected_target)
             nonempty(patch["reason"], f"{sid}: patch explanation")
             original = read(root, f"{prefix}/files/{upstream}.source")
             require(
-                sha256(original) == patch["upstream_sha256"], f"upstream hash mismatch: {upstream}"
+                sha256(original) == patch["upstream_sha256"],
+                f"upstream hash mismatch: {upstream}",
             )
             # Walk the captured Git trees to bind the original bytes to the pin.
             tree = root_tree
@@ -310,7 +356,10 @@ def validate_sources(root, sources, artifacts):
                 raw_tree = read(root, f"{prefix}/trees/{tree}.raw")
                 require(git_oid("tree", raw_tree) == tree, f"{sid}: tree proof mismatch")
                 entries = tree_entries(raw_tree)
-                require(part in entries, f"{sid}: upstream path absent from commit: {upstream}")
+                require(
+                    part in entries,
+                    f"{sid}: upstream path absent from commit: {upstream}",
+                )
                 mode, oid = entries[part]
                 if index < len(parts) - 1:
                     require(mode == "40000", f"{sid}: upstream directory is not a tree")
@@ -321,10 +370,14 @@ def validate_sources(root, sources, artifacts):
                         f"{sid}: upstream symlink or non-file rejected",
                     )
                     require(
-                        git_oid("blob", original) == oid, f"{sid}: blob proof mismatch: {upstream}"
+                        git_oid("blob", original) == oid,
+                        f"{sid}: blob proof mismatch: {upstream}",
                     )
             actual = read(root, expected_target)
-            require(sha256(actual) == patch["sha256"], f"adapted hash mismatch: {expected_target}")
+            require(
+                sha256(actual) == patch["sha256"],
+                f"adapted hash mismatch: {expected_target}",
+            )
             require(
                 expected_target in artifacts,
                 f"source target not covered by artifacts: {expected_target}",
@@ -335,7 +388,10 @@ def validate_sources(root, sources, artifacts):
                     f"missing adaptation patch: {expected_target}",
                 )
                 expected_patch = f"{prefix}/patches/{upstream}.patch"
-                require(patch["patch"] == expected_patch, f"invalid patch path: {expected_target}")
+                require(
+                    patch["patch"] == expected_patch,
+                    f"invalid patch path: {expected_target}",
+                )
                 delta = read(root, expected_patch)
                 require(
                     sha256(delta) == patch["patch_sha256"],
@@ -359,7 +415,8 @@ def validate_sources(root, sources, artifacts):
         keys(license_info, {"spdx", "path", "sha256"}, label=f"{sid} license")
         require(license_info["spdx"] == "MIT", f"{sid}: incorrect license identifier")
         require(
-            license_info["path"] == target_for(sid, "LICENSE"), f"{sid}: incorrect license path"
+            license_info["path"] == target_for(sid, "LICENSE"),
+            f"{sid}: incorrect license path",
         )
         license_bytes = read(root, license_info["path"])
         original_license = read(root, f"{prefix}/files/LICENSE.source")
@@ -425,11 +482,14 @@ def validate_active_skills(root, artifacts):
         if not active or parts[-1] != "SKILL.md":
             continue
         contents = read(root, relative).decode("utf-8-sig").replace("\r\n", "\n")
-        match = re.match(r"\A---\n(.*?)\n---(?:\n|\Z)", contents, re.S)
+        match = re.match(r"\A---\n(.*?)\n---(?:\n|\Z)", contents, re.DOTALL)
         require(match is not None, f"{relative}: missing skill front matter")
         front = yaml_object(match[1], relative)
         name = front.get("name")
-        require(isinstance(name, str) and NAME.fullmatch(name), f"{relative}: invalid skill name")
+        require(
+            isinstance(name, str) and NAME.fullmatch(name),
+            f"{relative}: invalid skill name",
+        )
         require(name == parts[-2], f"{relative}: skill name must match folder")
         nonempty(front.get("description"), f"{relative}: description")
         require(
@@ -452,7 +512,10 @@ def validate_active_skills(root, artifacts):
     )
     expected["systematic-debugging"] = "skills/systematic-debugging/SKILL.md"
     for name, path in expected.items():
-        require(names.get(name) == path, f"required active skill missing or relocated: {name}")
+        require(
+            names.get(name) == path,
+            f"required active skill missing or relocated: {name}",
+        )
     return entries
 
 
@@ -467,7 +530,8 @@ def validate_manifests(root, artifacts):
     require(required <= set(manifests), "missing required plugin manifest")
     package_folders = {p.split("/")[1] for p in artifacts if p.startswith("plugins/")}
     require(
-        package_folders == {p.split("/")[1] for p in manifests}, "plugin directory missing manifest"
+        package_folders == {p.split("/")[1] for p in manifests},
+        "plugin directory missing manifest",
     )
     for path in manifests:
         manifest = load_json(read(root, path))
@@ -484,9 +548,13 @@ def validate_manifests(root, artifacts):
         )
         if manifest["name"] in {"matt-engineering", "superpowers-execution"}:
             require(
-                manifest.get("license") == "MIT", f"{path}: missing or incorrect plugin license"
+                manifest.get("license") == "MIT",
+                f"{path}: missing or incorrect plugin license",
             )
-        require(manifest["skills"] in {"./skills", "./skills/"}, f"{path}: unsupported skills path")
+        require(
+            manifest["skills"] in {"./skills", "./skills/"},
+            f"{path}: unsupported skills path",
+        )
         nonempty(manifest["description"], f"{path}: description")
         keys(manifest["author"], {"name"}, {"email", "url"}, label=f"{path}: author")
         nonempty(manifest["author"]["name"], f"{path}: author name")
@@ -551,7 +619,10 @@ def validate_manifests(root, artifacts):
                     f"{path}: invalid asset path",
                 )
                 read(root, base + "/" + interface[field][2:])
-        require(isinstance(interface.get("screenshots", []), list), f"{path}: invalid screenshots")
+        require(
+            isinstance(interface.get("screenshots", []), list),
+            f"{path}: invalid screenshots",
+        )
         for asset in interface.get("screenshots", []):
             require(
                 isinstance(asset, str) and asset.startswith("./assets/"),
@@ -582,7 +653,7 @@ def markdown_body(text):
 def markdown_destinations(text):
     body = markdown_body(text)
     definitions = {}
-    for match in re.finditer(r"^\s{0,3}\[([^\]]+)\]:\s*(<[^>]+>|\S+)", body, re.M):
+    for match in re.finditer(r"^\s{0,3}\[([^\]]+)\]:\s*(<[^>]+>|\S+)", body, re.MULTILINE):
         definitions[match[1].casefold()] = match[2].strip("<>")
     # Inline links, including nested parentheses in a destination.
     for match in re.finditer(r"\[[^\]\n]+\]\(", body):
@@ -693,7 +764,8 @@ def verify(root, lock=None):
     for path, digest in artifacts.items():
         canonical_path(path)
         require(
-            isinstance(digest, str) and HEX64.fullmatch(digest), f"invalid artifact SHA-256: {path}"
+            isinstance(digest, str) and HEX64.fullmatch(digest),
+            f"invalid artifact SHA-256: {path}",
         )
     current = inventory(root)
     missing = sorted(set(artifacts) - set(current))

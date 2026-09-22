@@ -41,7 +41,7 @@ class PackageTests(unittest.TestCase):
                 shutil.copytree(
                     ROOT / directory,
                     self.root / directory,
-                    ignore=shutil.ignore_patterns(*checks.IGNORED_DIRS, "*.pyc"),
+                    ignore=shutil.ignore_patterns(*checks.IGNORED_DIRS, "*.egg-info", "*.pyc"),
                 )
         for relative in (*checks.EXTRA_FILES, "upstream.lock.json"):
             destination = self.root / relative

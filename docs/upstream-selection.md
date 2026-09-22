@@ -61,7 +61,9 @@ If the parent deliberately relocates this supply, it must review the source targ
 
 `upstream.lock.json` uses `schema_version: 1`, a `sources` list, and an `artifacts` mapping.
 Artifact keys are canonical paths relative to the repository/package root; values are SHA-256 hashes of the exact bytes on disk.
-The inventory includes all files under `plugins/`, `skills/`, `policies/`, `templates/`, and `docs/`, plus the root third-party notice and both packaging commands.
+The integrated inventory includes `plugins/`, `skills/`, `policies/`, `templates/`, `docs/`, `src/`, `schemas/`, and `scripts/`, plus runtime manifests/locks, the marketplace, and third-party notice.
+The derived `templates/binding.json` is excluded to avoid a hash cycle: its `package_digest` hashes this entire lock, and `scripts/check-templates.py` verifies that relationship plus each role template hash.
+After an approved lock refresh, run `python scripts/update-bindings.py`; normal checks never regenerate either file.
 Runtime caches (`__pycache__`, `node_modules`, `.git`, `.pytest_cache`, `.venv`, and Python bytecode) are excluded.
 Symlinks and Windows reparse points in the managed trees are rejected, including at ignored directory boundaries.
 
