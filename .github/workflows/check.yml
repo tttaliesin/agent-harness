@@ -30,3 +30,95 @@ jobs:
       - run: just doctor
       - run: just sync
       - run: just check
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: package-and-helper-tests
+          path: .reports/pytest.xml
+          include-hidden-files: true
+          if-no-files-found: error
+
+  usage-fixtures:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      OPENSPEC_TELEMETRY: '0'
+      DO_NOT_TRACK: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db
+        with:
+          version: 2026.8.10
+          install_args: --locked python uv just node pnpm
+          cache: false
+          github_token: ''
+      - run: just sync
+      - name: Install locked fixture dependencies
+        run: |
+          pnpm --dir fixtures/openspec install --frozen-lockfile --ignore-scripts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          uv sync --project fixtures/web-api --locked --python (Get-Command python).Source
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm ci --prefix fixtures/web-api --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm --dir fixtures/streaming install --frozen-lockfile --ignore-scripts
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check OpenSpec generation and lifecycle
+        run: uv run --no-sync pytest -q fixtures/openspec/test_lifecycle.py --basetemp=.reports/os-ci --junitxml=.reports/openspec.xml
+      - name: Exercise Python HTTP scenarios and reject invalid evidence
+        working-directory: fixtures/web-api
+        run: |
+          $started = uv run --frozen --no-sync python -c 'import time; print(time.time())'
+          uv run --frozen --no-sync python -B -m pytest -p no:cacheprovider --junitxml=.reports/python.xml
+          $testExit = $LASTEXITCODE
+          uv run --frozen --no-sync python ../../skills/python-testing/scripts/check-junit.py --report .reports/python.xml --exit-code $testExit --started-at $started
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Exercise browser input, authorization and error paths
+        working-directory: fixtures/web-api
+        env:
+          FIXTURE_BROWSER_CHANNEL: msedge
+          FIXTURE_PORT: '19387'
+        run: |
+          $started = uv run --frozen --no-sync python -c 'import time; print(time.time())'
+          node node_modules/@playwright/test/cli.js test
+          $testExit = $LASTEXITCODE
+          uv run --frozen --no-sync python ../../skills/python-testing/scripts/check-junit.py --report .reports/browser.xml --exit-code $testExit --started-at $started
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Prepare pinned synthetic media tools
+        working-directory: fixtures/streaming
+        run: |
+          $pins = Get-Content -Raw tools.json | ConvertFrom-Json
+          New-Item -ItemType Directory -Force .reports/tools | Out-Null
+          foreach ($name in @('mediamtx', 'ffmpeg')) {
+            $tool = $pins.$name
+            $archive = Join-Path .reports/tools ($name + '.zip')
+            Invoke-WebRequest -Uri $tool.url -OutFile $archive -TimeoutSec 120
+            if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLower() -ne $tool.sha256) {
+              throw "Archive checksum mismatch: $name"
+            }
+            Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path .reports/tools $name)
+          }
+          $env:PLAYWRIGHT_BROWSERS_PATH = Join-Path (Get-Location) '.reports/browsers'
+          node node_modules/playwright/cli.js install chromium
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Exercise RTSP outage, new-frame recovery and WebRTC
+        run: |
+          uv run --no-sync python fixtures/streaming/run.py --ffmpeg fixtures/streaming/.reports/tools/ffmpeg/ffmpeg-8.0-essentials_build/bin/ffmpeg.exe --mediamtx fixtures/streaming/.reports/tools/mediamtx/mediamtx.exe --webrtc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: usage-fixture-results
+          path: |
+            .reports/openspec.xml
+            fixtures/web-api/.reports/*.xml
+            fixtures/streaming/.reports/run-*/*.json
+            fixtures/streaming/.reports/run-*/*.log
+          include-hidden-files: true
+          if-no-files-found: error

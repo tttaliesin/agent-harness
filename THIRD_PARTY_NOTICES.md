@@ -14,6 +14,7 @@ License: [MIT](provenance/mattpocock-skills/LICENSE.txt)
 Active skills: domain-modeling, grilling, codebase-design and code-review.
 Adapted references from grill-with-docs and writing-for-agents are included in grilling and markdown-authoring respectively.
 Local adaptations use the current task, native Codex capabilities, product specifications and existing commands, preserving the user's authorization.
+The code-review candidate preflight script is locally authored supporting code, explicitly listed in the package verifier, rather than an upstream file or a Git-object provenance claim.
 
 ## Superpowers
 

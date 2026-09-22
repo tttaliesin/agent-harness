@@ -52,7 +52,9 @@ LICENSE_COPIES = {
     "skills/markdown-authoring/LICENSE.mattpocock.txt": "mattpocock-skills",
     "skills/code-review/LICENSE.superpowers.txt": "superpowers",
 }
-PACKAGE_DIRS = ("skills", "provenance", "docs", "scripts", "tests", "plugins")
+# This helper is authored here, not a file copied from the selected upstream.
+LOCAL_ADDITIONS = {"skills/code-review/scripts/check-candidate.py"}
+PACKAGE_DIRS = ("skills", "provenance", "docs", "scripts", "tests", "plugins", "fixtures")
 EXTRA_FILES = (
     "THIRD_PARTY_NOTICES.md",
     "pyproject.toml",
@@ -66,7 +68,16 @@ EXTRA_FILES = (
     "AGENTS.md",
     "README.md",
 )
-IGNORED_DIRS = {"__pycache__", "node_modules", ".git", ".pytest_cache", ".venv"}
+IGNORED_DIRS = {
+    "__pycache__",
+    "node_modules",
+    ".git",
+    ".pytest_cache",
+    ".venv",
+    ".reports",
+    ".ruff_cache",
+    ".agents",  # OpenSpec output in fixtures; generated and tested with the pinned CLI.
+}
 HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
@@ -439,7 +450,9 @@ def validate_sources(root, sources, artifacts):
         for relative in artifacts:
             if relative.startswith(f"skills/{name}/"):
                 require(
-                    relative in all_targets or relative in LICENSE_COPIES,
+                    relative in all_targets
+                    or relative in LICENSE_COPIES
+                    or relative in LOCAL_ADDITIONS,
                     f"skill file has no upstream correspondence: {relative}",
                 )
 

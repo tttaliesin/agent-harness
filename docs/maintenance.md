@@ -6,6 +6,7 @@
 ## 환경과 검사
 
 저장소 루트에서 mise.toml·mise.lock의 검토된 Python·uv·just 선택
+실행 예제에는 같은 파일의 Node.js·pnpm과 각 fixture의 lock 사용
 의존성 설치와 검사를 분리하여 실행
 
 ```sh
@@ -20,6 +21,16 @@ check는 Ruff·스킬 및 출처 검사·실패 사례 테스트 실행
 
 스킬의 script를 변경할 때 해당 스킬의 관련 검사도 실행
 정적 스킬 검증과 실제 Codex 호출·제품 시나리오 검증은 별도로 기록
+
+## 실제 실행 예제
+
+- [Web/API](../fixtures/web-api/USAGE.md): uv HTTP 검사·실제 Playwright Test·JUnit 검증
+- [Streaming](../fixtures/streaming/README.md): 고정 MediaMTX·FFmpeg·실제 RTSP 중단·복구·WebRTC 수신
+- OpenSpec: `pnpm --dir fixtures/openspec install --frozen-lockfile --ignore-scripts` 후 `uv run --no-sync pytest fixtures/openspec/test_lifecycle.py`
+- CI의 usage-fixtures job: Windows에서 세 예제를 실행하고 실제 XML·JSON·로그를 해당 commit의 artifact로 보존
+
+생성된 `.agents`·다운로드한 실행 파일·실행 결과는 fixture의 `.reports` 등에만 두고 배포 원본과 구분
+고정 도구의 설치 실패나 실행 환경 부재는 검사 성공으로 처리하지 않는 기준
 
 ## 출처와 lock 변경
 

@@ -1,7 +1,7 @@
 # Product pipeline evidence
 
 Use this reference when the approved scope includes inference, forwarding, or tracker behavior beyond the synthetic CPU transport fixture.
-Have the product adapter call its existing commands and preserve the common evidence and failure rules; the shared workflow does not need product-name branches.
+Use the product's existing commands and preserve the common evidence and failure rules; the shared workflow does not need product-name branches.
 
 ## Keep acceptance criteria independent
 

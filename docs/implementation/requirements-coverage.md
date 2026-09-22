@@ -1,109 +1,130 @@
 # 원문 요구와 현재 구현 범위
 
 기준일: 2026-09-22
-검사한 구현: `dee18d7131394858172adb067d28dccb972f5ee2`
-근거: 사용자 첨부 구축 지시문 「0. 수행할 작업」의 5·6·16·17·18절과 해당 commit의 추적 파일
+기준 요구: 사용자 첨부 구축 지시문 「0. 수행할 작업」의 5·6·16·17·18절과 기존 H01–H26 목적
+현재 통합 소스의 구현 위치와 남은 인수 조건 대조
+최종 후보 commit·통합 검사 수·실제 CI run은 [기능 인수 기록](functional-acceptance.md)에 통합 담당자가 확정할 항목
 
-**현재 19개는 범용 스킬의 공급 목록이며 원문 전체 기능의 완성 목록이 아님**
+## 현재 공급과 요구 범위
 
-npx skills로 설치 방식을 단순화하라는 요청을 기능 범위 축소로 처리한 판단 정정
-전체 기능을 담기 전에 설치 전환을 다음 단계로 잡은 순서도 정정
-19개를 최종 개수로 고정하거나 9개 이름의 통합을 기능 보존 완료로 집계하는 기준 철회
+공통 스킬 22개: 기존 범용 13개, Matt 독립 4개, Superpowers 독립 2개에 project-workflow·python-testing·streaming-testing 추가
+OpenSpec 7개는 공통 22개와 별도로 CLI 1.13.1이 Web/API·Streaming 각 fixture의 `.agents/skills/`에 생성
+22와 7은 공급 위치의 개수이며 기능 인수 통과 수와 별개
 
-## 19개의 실제 구성
-
-- 기존 범용 스킬 13개
-- Matt 계열 독립 스킬 4개: domain-modeling·grilling·codebase-design·code-review
-- Superpowers 계열 독립 스킬 2개: test-driven-development·verification-before-completion
-
-원문의 OpenSpec 7개·Matt 7개·Superpowers 4개에는 의도적으로 서로 다른 공급 위치와 통합 가능한 절차 포함
-여기에 공통 작업 연결 기능 5개와 Web·Python·Streaming 기능, 두 실행 예제 요구까지 포함
-기존 13개와 숫자만 합산하여 최종 스킬 수를 정하는 방식 제외
-
-아래의 보존은 파일·내용의 존재 의미이며 실제 Codex 호출이나 원문 시나리오 인수 통과와 별개
+원문 OpenSpec 7개·Matt 7개·Superpowers 4개, 공통 작업 연결 5개, Web·Python·Streaming 3분야, 실행 예제 2개와 H01–H26 범위 유지
+설치 방식 단순화와 이름 통합을 요구 축소나 기능 보존 완료로 취급했던 판단 정정
+이전 19개 공급 단계와 R1의 패키지 검사·시험 설치는 역사적 부분 근거로 보존
 
 ## 선정 스킬별 대조
 
-| 원문 선정 | 현재 위치·처리 | 남은 일 |
-| --- | --- | --- |
-| openspec-explore | 공통 19개에 미포함; 제품에서 생성할 스킬 | 실제 제품의 생성·발견·조사 흐름 연결 |
-| openspec-propose | 동일 | 기존 문서와 제안·명세·설계·작업 연결 |
-| openspec-apply-change | 동일 | 승인된 변경의 구현 흐름 연결 |
-| openspec-update-change | 동일 | 진행 중 변경 사항의 명세·작업 갱신 검증 |
-| openspec-verify-change | 동일 | verify를 명시한 생성 설정과 실제 명세 대조 검증 |
-| openspec-sync-specs | 동일 | 승인된 변경의 정본 반영 검증 |
-| openspec-archive-change | 동일 | 완료 변경 보관까지 실제 한 흐름으로 실행 |
-| setup-matt-pocock-skills | 독립 공급 종료; development-tooling으로 일부 책임 이동 | tracker·문서·기존 CLAUDE 보존·AGENTS 진입·실제 발견까지 대체 절차 검증 |
-| domain-modeling | skills/domain-modeling에 보존 | 실제 제품 문서의 용어·모델·ADR 반영 검증 |
-| grill-with-docs | grilling/references/record-decisions.md로 일부 통합 | 협의 조건·domain-modeling 연결·결정 기록까지 누락 대조 |
-| grilling | skills/grilling에 보존 | 명시된 협의에서 호출하고 승인된 구현마다 재질문하지 않는 동작 검증 |
-| codebase-design | skills/codebase-design에 보존 | 제품 규칙 우선 적용과 실제 설계 검토 |
-| code-review | skills/code-review에 보존 | 같은 후보·명세·검사 근거로 독립 두 축 검토, 누락·dirty 후보 실패 검증 |
-| writing-for-agents | markdown-authoring/references/writing-for-agents.md로 통합 | 실제 에이전트 문서 작성 요청의 발견·실행·필수 지침과 참고 자료 구분 검증 |
-| test-driven-development | skills/test-driven-development에 보존 | 실제 실패→구현→재검증 시나리오 |
-| systematic-debugging | 기존 skills/systematic-debugging 단일 공급 유지 | 실제 재현·원인·수정 검증 |
-| verification-before-completion | skills/verification-before-completion에 보존 | 오래된 결과·0 tests·검사 누락을 완료로 보고하지 않는 사례 |
-| receiving-code-review | code-review/references/receiving-review.md로 통합 | 리뷰 요청 없이 피드백만 받은 경우도 절차에 진입하는지 검증 |
+원문 선정 이름과 현재 소유 위치의 대응
+생성·구현·검사 결과는 [기능 인수 기록](functional-acceptance.md)에서 구분하고 실제 제품 사용은 별도 확인
 
-이전 OpenSpec 시험 폴더의 7개 생성 확인은 실제 제품에서 전체 흐름이 연결됐다는 근거로 사용 제외
-공통 저장소에 OpenSpec 복사본을 추가하여 이중 공급하는 방식도 제외
-기존 이름을 합칠 때에는 호출 조건·필수 내용·참조·실행 결과의 동등성 확인 필요
+| 원문 선정 | 현재 위치·처리 | 남은 인수 범위 |
+| --- | --- | --- |
+| openspec-explore | CLI 생성; [7개 선택 절차](../../skills/project-workflow/references/workflow-routing.md) | 실제 change 조사와 요구 회수 |
+| openspec-propose | CLI 생성; 두 fixture의 proposal·design·specs·tasks 존재 | native 요청에서 제안·승인 연결 |
+| openspec-apply-change | CLI 생성; [project-workflow](../../skills/project-workflow/SKILL.md)에서 호출 | 승인된 구현과 제품 검사 전체 실행 |
+| openspec-update-change | CLI 생성; 같은 change의 요구 변경 경로 | 실제 요구 변경 후 영향 검사 |
+| openspec-verify-change | CLI custom profile에 명시하여 각 fixture에 생성 | 실제 후보의 요구·시나리오 대조 |
+| openspec-sync-specs | CLI 생성; canonical spec 반영을 lifecycle 검사로 확인 | 두 fixture의 최종 인수 후 정본 반영 |
+| openspec-archive-change | CLI 생성; 실제 CLI archive와 canonical spec 검사 | 두 fixture의 완료·전달 조건에 맞춘 보관 |
+| setup-matt-pocock-skills | [development-tooling 초기 구성](../../skills/development-tooling/references/openspec-setup.md)으로 통합 | tracker·기존 문서·승인 회수와 실제 제품 진입 |
+| domain-modeling | [domain-modeling](../../skills/domain-modeling/SKILL.md) 유지 | 제품 용어·모델·ADR 적용 |
+| grill-with-docs | [grilling 결정 기록](../../skills/grilling/references/record-decisions.md)으로 통합 | 필요한 협의와 domain-modeling 연결 |
+| grilling | [grilling](../../skills/grilling/SKILL.md) 유지 | 승인된 구현의 반복 질문 없이 필요한 결정만 협의 |
+| codebase-design | [codebase-design](../../skills/codebase-design/SKILL.md) 유지 | 제품 규칙에 맞춘 실제 설계 검토 |
+| code-review | [후보 검사·Spec/Standards](../../skills/code-review/SKILL.md) 구현 | 실제 읽기 전용 리뷰 실행과 같은 후보의 두 결과 |
+| writing-for-agents | [markdown-authoring 참고 자료](../../skills/markdown-authoring/references/writing-for-agents.md)로 통합 | 문서 요청에서 발견·필수 지침 적용 |
+| test-driven-development | [test-driven-development](../../skills/test-driven-development/SKILL.md) 유지 | 실제 제품의 실패→구현→재검증 |
+| systematic-debugging | [기존 단일 공급](../../skills/systematic-debugging/SKILL.md) 유지 | 실제 재현·원인·수정 검증 |
+| verification-before-completion | [verification-before-completion](../../skills/verification-before-completion/SKILL.md) 유지 | 현재 후보·실제 결과·미완료의 정확한 판정 |
+| receiving-code-review | [code-review 피드백 검증](../../skills/code-review/references/receiving-review.md)으로 통합 | 피드백에서 진입해 근거에 맞춘 수정·재검사 |
+
+OpenSpec의 실제 init·반복 init·격리 update·canonical archive·잘못된 spec 거부·기존 문서 보존은 [CLI lifecycle 검사](../../fixtures/openspec/test_lifecycle.py) 5개 통과로 관측
+기존 core profile 또는 profile 미설정 상태에서도 별도 XDG 경로의 후속 update가 원래 사용자 설정 바이트와 7개 생성 스킬을 보존하는 경우 포함
+CLI의 파일 생명주기 검사를 native Codex의 전체 구현·리뷰·인계 실행 인수로 확대하지 않는 기준
 
 ## 공통 작업 연결 기능 5개
 
-원문 6절의 이름을 없애더라도 아래 기능과 완료 기준은 유지
-현재 소유 스킬에 일부 절차를 옮긴 상태이며 전체 흐름의 동등성 미검증
+원문 6절의 기능과 완료 기준 유지
+현재 진입점과 구체적인 구현을 연결하되 지침의 존재를 운영 강제로 대체하지 않는 판정
 
-| 기능 | 현재 처리 | 보완·검증 결과물 |
+| 기능 | 구현 진입점 | 관측과 남은 조건 |
 | --- | --- | --- |
-| 시작·초기 구성 | development-tooling에 일부 이동 | 실제 문서·OpenSpec·환경·명령과 Codex 발견 확인 |
-| 작업 진행 | OpenSpec·구현 스킬·완료 판단으로 분산 | change 선택→승인 확인→구현→검사→리뷰, 기준별 증거·차단 목록 |
-| 공식 리뷰 | code-review에 일부 통합 | 고정 후보의 Spec·Standards 독립 결과와 지적별 처리 상태 |
-| PR 후속 작업 | github-operations 참고 자료 | 지정 PR·head·처리 이벤트·단일 쓰기 담당·다음 조건, 중복 처리 시험 |
-| 인계·재개 | github-operations 참고 자료 | 전체 대화 없이 다른 작업이 위치·후보·근거·미완료를 찾아 재개 |
+| 시작·초기 구성 | [development-tooling](../../skills/development-tooling/SKILL.md), [OpenSpec setup](../../skills/development-tooling/references/openspec-setup.md) | 기존 tracker·CLAUDE·AGENTS·승인 보존 절차, CLI 검사 관측; 실제 제품 진입 인수 남음 |
+| 작업 진행 | [project-workflow](../../skills/project-workflow/SKILL.md) | 선택 설치·native catalog 발견과 승인 재사용 지침 검토 관측; 전체 실행 인수 남음 |
+| 공식 리뷰 | [code-review](../../skills/code-review/SKILL.md), [candidate helper](../../skills/code-review/scripts/check-candidate.py) | helper 10개 통과, 숨긴 Git index flags 차단; native 읽기 전용 실행 인수 대기 |
+| PR 후속 작업 | [github-operations 후속 절차](../../skills/github-operations/references/followup-and-handoff.md) | 같은 이벤트·head의 no-op 지침 독립 검토; 실제 PR 중복 쓰기·동시성 시험 남음 |
+| 인계·재개 | [project-workflow 재개 절차](../../skills/project-workflow/references/followup-and-resumption.md) | stale head의 재평가 지침 독립 검토; 기록만 받은 다른 작업의 실제 재개 남음 |
 
-문서의 소유자 표만으로 작업 연결 완료 처리 금지
-기존 스킬의 자연스러운 진입 조건으로 연결되지 않는 기능은 실제 시나리오를 근거로 보완
-스킬 이름 유지 여부는 기능 보존을 확인한 뒤 결정
+필수 spec 부재의 BLOCKED, 처리한 event/review ID와 같은 head의 no-op, 오래된 handoff head의 재평가, 기존 구현 승인 재사용의 네 사례는 설치 지침을 읽은 독립 routing 검토
+실제 PR 처리·동시 실행 잠금·읽기 전용 에이전트 실행 성공의 근거로 사용 제외
 
 ## 분야별 기능과 실행 예제
 
-| 원문 요구 | 현재 상태 | 구현·인수 범위 |
+현재 구체적 구현과 원문 인수 범위의 대응
+
+| 원문 요구 | 구현·실행 진입점 | 관측과 남은 범위 |
 | --- | --- | --- |
-| Web | webapp-testing 등 일반 지침 존재; 원문 조합의 연결 미완료 | Playwright MCP 탐색·재현과 저장된 Playwright Test 구분, 실제 URL·계정 fixture·정상·오류·권한·입력 실패 검사 |
-| Python | 개발 도구 지침 존재; 제품 검사·결과 parser 연결 미완료 | uv·기존 Python 명령, 실제 케이스 수·실패·보고서 parser와 0 tests·누락·허위 성공 거부 |
-| Streaming | 요구된 실행 fixture 미구현 | MediaMTX·FFmpeg 합성 RTSP 발행·읽기·중단·재개, 실제 새 프레임과 WebRTC 수신 검사 |
-| Web/API 실행 예제 | 미완료 | 작은 HTTP 동작과 Playwright 시나리오를 명세부터 검사·리뷰·인계까지 실제 실행 |
-| Streaming 실행 예제 | 미완료 | 같은 공통 revision으로 합성 소스 단절·복구 검증, 가능한 브라우저 수신까지 실행 |
+| Web | [webapp-testing](../../skills/webapp-testing/SKILL.md), [MCP와 Test 구분](../../skills/webapp-testing/references/playwright-evidence.md) | 통합 Edge 7개·JUnit 판정·cleanup 관측, 실제 MCP DOM은 worker 근거; 최종 후보 귀속 대기 |
+| Python | [python-testing](../../skills/python-testing/SKILL.md), [JUnit 검사기](../../skills/python-testing/scripts/check-junit.py) | 통합 HTTP 12개·JUnit 회귀 29개 관측; 0 cases·누락·허위 성공 거부 |
+| Streaming | [streaming-testing](../../skills/streaming-testing/SKILL.md), [decoded-frame probe](../../skills/streaming-testing/scripts/stream_probe.py) | CPU RTSP·WebRTC 관측; epoch·cleanup·outage 수정 후 결과 대기 |
+| Web/API 실행 예제 | [Web/API 사용법](../../fixtures/web-api/USAGE.md), [Web/API 요구](../../fixtures/web-api/openspec/changes/accept-web-api/specs/web-api/spec.md), [Web/API tasks](../../fixtures/web-api/openspec/changes/accept-web-api/tasks.md) | 정상·오류·권한·입력 시나리오 구현, 실제 CLI strict validate 통과; 최종 후보의 전체 흐름 남음 |
+| Streaming 실행 예제 | [Streaming 사용법](../../fixtures/streaming/README.md), [Streaming 요구](../../fixtures/streaming/openspec/changes/accept-streaming/specs/streaming/spec.md), [Streaming tasks](../../fixtures/streaming/openspec/changes/accept-streaming/tasks.md) | 발행·중단·새 프레임·브라우저 수신 구현, 실제 CLI strict validate 통과; 수정 후 통합 인수 남음 |
 
-분야별 기능은 해당 스킬의 references·구체적인 scripts와 재실행 가능한 예제에 배치
-별도 팩 설치 계층 제거를 세 분야 기능의 제거로 해석하는 기준 철회
-실제 코드 배치는 구현 전 기존 스킬·제품 도구와 대조하고 중복 없는 소유자 선택
+MediaMTX는 시험용 합성 소스이며 기존 제품 미디어 서버 교체 대상에서 제외
+합성 CPU transport·실제 제품 RTSP→추론→WebRTC 전달·GPU 추론·tracker ID 유지는 각각 별도 요구와 결과
+필수 브라우저·GPU 부재는 해당 검사 BLOCKED, 실행하지 않은 항목은 NOT_RUN으로 보존
+재연결된 새 브라우저의 수신을 기존 브라우저 세션의 자동 복구나 tracker 연속성으로 대체하지 않는 기준
 
-MediaMTX는 시험용 미디어 소스로 사용하고 기존 제품 미디어 서버 교체 제외
-합성 소스 시험과 실제 제품 RTSP→추론→WebRTC 검증을 별도 기록
-CPU mock·새 프레임 수신·GPU 추론·tracker ID 유지의 결과를 서로 대체하지 않는 기준
-필수 브라우저·GPU 환경 부재는 해당 검사 BLOCKED로 기록하고 통과 집계 제외
+## H01–H26의 유지 범위
+
+기존 요구 대조의 ID와 원문 목적 유지
+아래는 책임·근거·남은 게이트의 대응이며 전체 통과표가 아님
+공급 방식 전환으로 종료한 binding·hook·공통 registry의 원문 시험을 자동 PASS로 집계하지 않는 기준
+
+| ID | 원문 목적 | 현재 근거와 남은 조건 |
+| --- | --- | --- |
+| H01 | 출처·SHA·license·포함 파일 증명 | provenance·license·root lock의 통합 후보 검사는 통합 담당자 확정 |
+| H02 | 실제 Desktop 발견·호출·hook | 선택 설치·native catalog 발견 관측; 실제 호출 흐름·사용자 Desktop R2 남음, 자체 hook 공급 종료 |
+| H03 | 반복 binding의 동일 결과 | binding 대신 선택 재설치·갱신 비교; OpenSpec 반복 init/update 관측과 사용자 R2 구분 |
+| H04 | 사용자 수정 보존 | CLI 검사에서 기존 CLAUDE·AGENTS·사용자 설정 보존 관측; 사용자 설치 diff·백업·복구 남음 |
+| H05 | 같은 이름 중복 탐지 | 공통 22개·fixture별 생성 7개 공급 분리; 실제 사용자 설치 중복 점검은 R2 |
+| H06 | 필수 참조 누락 거부 | 선택 설치의 필수 참조와 candidate helper의 spec 거부; 최종 패키지 검사 남음 |
+| H07 | 두 fixture에서 공통 재사용 | 같은 통합 소스의 두 예제·OpenSpec 구성; 동일 최종 revision의 실행·리뷰·인계 대기 |
+| H08 | 필수 검사 약화 방지 | 필수 검사·누락 판정 지침 유지; 실제 CI required checks와 서버 강제 미검증 |
+| H09 | 0 tests·보고서 누락 거부 | JUnit 실제 case 검사·부정 사례 관측; 통합 후보의 재검사 결과 연결 필요 |
+| H10 | exit 0·허위 PASS 불신 | worker 보고서 parser의 실패 거부 관측; 실제 CI 출처·run 대조 남음 |
+| H11 | timeout·도구 부재·자식 프로세스 정리 | 구체적 subprocess·fixture 검사 존재; Streaming cleanup·outage 수정 후 재검증 대기 |
+| H12 | 필수 GPU·브라우저 부재 구분 | BLOCKED·NOT_RUN 구분 유지; 실제 GPU·제품 환경 인수 남음 |
+| H13 | 후보·명세·정책 변경 시 결과 무효화 | candidate helper와 stale head 지침 검토; 최종 후보·입력·skill revision에 결과 귀속 필요 |
+| H14 | 변경 중인 후보·필수 명세 누락 구분 | helper 10개 통과에 dirty·missing spec·hidden index flags 거부 포함 |
+| H15 | Spec·Standards 독립 판정 | 독립 지침·코드 검토 관측; 최종 같은 후보의 두 축 인수 남음 |
+| H16 | 리뷰의 실제 읽기 전용 경계 | canary 쓰기 DENIED 관측, shell 읽기도 두 시도 DENIED; 가능한 권한 내 실제 native 리뷰 실행은 대기 |
+| H17 | 병렬 작업의 포트·데이터·로그 격리 | Streaming 두 동시 실행 관측; 수정 후 재검증·실제 제품 자원 시험 남음 |
+| H18 | 한 작업 정리 시 다른 작업 보존 | worker cleanup 관측; descendant 정리 수정·교차 보존의 최종 결과 대기 |
+| H19 | hook 재진입·중단 시 무한 실행 방지 | 자체 hook 공급 종료, 잔여 등록은 R2 확인; 원문 hook 시험 PASS 아님 |
+| H20 | 전체 대화 없이 재개 | 기존 change·handoff와 stale head 지침 구현; 다른 작업의 실제 기록 기반 재개 남음 |
+| H21 | 중복 PR 이벤트의 중복 쓰기 방지 | event/head 재조회·단일 쓰기 담당 지침 검토; 실제 중복 이벤트·동시 실행 차단 미입증 |
+| H22 | 실제 CI 후보·run·artifact 연결 | Windows fixture job 작성; push·실행·후보·artifact 대조 대기 |
+| H23 | 일회성 runner 제거·crash 복구 | infra 소유의 실제 runner 운영 시험 미완료 |
+| H24 | 승인 없는 배포·잘못된 대상 거부 | deploy 소유의 승인·대상 실패 시험 미완료 |
+| H25 | 배포·건강 실패·복구 기록 | deploy 시험 환경의 실패·복구 인수 미완료 |
+| H26 | upstream 변경의 회귀 검증 | 출처·license·diff·두 예제·설치 갱신 검사 유지; 최종 통합·R2 결과 대기 |
 
 ## 완료 보고 정정
 
-R1 테스트 33개·하위 사례 12개는 tests/test_packages.py의 패키지 무결성·출처·참조·실패 입력 검사
-두 스킬의 시험 설치는 설치 파일 확인이며 두 실행 예제의 기능 검증 미실행
-R1의 독립 검토는 당시 축소된 정리 계획을 대상으로 한 결과이며 원문 전체 범위 충족의 근거로 사용 제외
+R1의 33개 테스트·하위 사례 12개는 당시 패키지 무결성·출처·참조·실패 입력 검사
+당시 두 스킬 시험 설치와 축소된 정리 계획의 검토를 원문 전체 기능 완료로 설명한 판단 철회
+이후 추가한 구현과 실제 fixture 관측을 반영하되 과거 기록을 현재 후보의 검증으로 재사용하는 방식 제외
 
-원문의 H01–H26 중 권한·병렬 자원·인계·PR 중복 처리·실제 CI·runner·배포 요구도 별도 유지
-지침 존재와 실제 권한·CI 강제·운영 실패 시험을 각각 구분
-공개 push·패키지 검사 성공을 제품 기능이나 운영 인수 성공으로 확대 해석하는 기준 철회
+## 남은 인수 순서
 
-## 수정한 진행 순서
+1. Streaming 수정 후 결과와 관측한 Web 통합 결과를 같은 최종 후보·명세·skill revision에 연결
+2. 필요한 native 실행 경로에서 읽기 가능한 입력·쓰기 거부·두 축 리뷰·기록 기반 재개 확인
+3. 통합 commit·최종 검사 수·CI run과 artifacts를 [기능 인수 기록](functional-acceptance.md)에 확정
+4. 검증된 기능의 사용자 설치 R2에서 백업·전환·복구·실제 발견·호출 확인
+5. Allsen 제품 작업·GPU·tracker·실제 CI와 infra runner·배포·복구를 각 소유 범위에서 인수
 
-1. 원문 기능별 현재 파일·공급 경로·누락·인수 조건 대조 — 이 문서로 정정
-2. OpenSpec 7개와 공통 작업 흐름 연결, 통합한 9개 이름의 기능 보존 재검증 — 미완료
-3. Web·Python·Streaming 지침·필요한 도구·두 실행 예제 구현 및 실패 사례 검증 — 미완료
-4. 해당 기능의 실제 Codex 호출과 동일 revision 재사용 검증 — 미완료
-5. 대체 기능이 검증된 사용자 설치본만 백업·전환 — 미완료
-6. Allsen 실제 작업·CI와 별도 운영 저장소의 runner·배포·복구 인수 — 미완료
-
-최종 스킬 이름·개수는 기능을 빠짐없이 배치한 결과로 결정
-이번 정정은 문서와 완료 판정의 수정이며 빠진 기능 구현의 완료 기록이 아님
-현재 사용자 설치본·플러그인 설정의 선제 비활성화 제외
+현재 사용자 설치본·플러그인 설정의 선제 비활성화와 새 공통 runtime·adapter 계층 추가 제외

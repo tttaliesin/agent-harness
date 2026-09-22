@@ -43,7 +43,20 @@ def main():
         run(prefix + ["ruff", "format", "scripts", "tests"], env)
         return
     if action == "check":
-        run(prefix + ["ruff", "check", "scripts", "tests"], env)
+        run(
+            prefix
+            + [
+                "ruff",
+                "check",
+                "scripts",
+                "tests",
+                "fixtures",
+                "skills/code-review/scripts",
+                "skills/python-testing/scripts",
+                "skills/streaming-testing/scripts",
+            ],
+            env,
+        )
         run(prefix + ["python", "scripts/check-packages.py"], env)
     if action in {"check", "test"}:
         report = ".reports/pytest.xml"

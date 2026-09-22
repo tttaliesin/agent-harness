@@ -94,7 +94,7 @@ class PackageTests(unittest.TestCase):
             result = checks.verify(self.root)
         self.assertEqual("PASS", result["status"])
         self.assertFalse(result["native_installation_validated"])
-        self.assertEqual(19, result["active_skills"])
+        self.assertEqual(22, result["active_skills"])
 
     def test_check_cli_never_refreshes_changed_bytes(self):
         before = (self.root / "upstream.lock.json").read_bytes()

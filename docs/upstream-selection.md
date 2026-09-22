@@ -3,29 +3,49 @@
 정확한 저장소·commit·license는 [서드파티 안내](../THIRD_PARTY_NOTICES.md), 파일별 적용 내역은 upstream.lock.json에서 관리
 원본 Git object·선별 파일·patch는 provenance 아래 보존
 
-현재 목록은 R1의 공급 기록이며 원문 전체 선정·기능 충족은 [요구 대조](implementation/requirements-coverage.md)에서 별도 판정
+현재 공통 22개와 제품·fixture별 OpenSpec 7개는 공급 경로의 구분
+원문 7+7+4 선정과 통합한 기능의 범위는 [요구 대조](implementation/requirements-coverage.md), 실제 검사·남은 인수는 [기능 인수 기록](implementation/functional-acceptance.md)에서 판정
 
 ## OpenSpec
 
-원문 선정 7개는 고정 OpenSpec CLI가 제품 .agents/skills에 생성하는 공급 경로 유지
-공통 19개에 포함되지 않으며 제품에서의 명세→구현→검증→정본 반영→보관 연결 미완료
+원문 선정 7개는 고정 OpenSpec CLI 1.13.1이 제품 .agents/skills에 생성하는 공급 경로 유지
+선정 이름은 openspec-explore·openspec-propose·openspec-apply-change·openspec-update-change·openspec-verify-change·openspec-sync-specs·openspec-archive-change
+공통 22개와 분리하여 Web/API·Streaming 각 fixture에 7개 생성
+
+[development-tooling의 setup](../skills/development-tooling/references/openspec-setup.md)에서 custom profile과 7개 workflow를 명시하고 이후 update에도 임시 XDG 설정 적용
+[실제 CLI 검사](../fixtures/openspec/test_lifecycle.py) 5개 PASS 관측: 반복 init·격리 update·canonical archive·잘못된 spec 거부·기존 문서 보존
+기존 core profile·profile 미설정에서 새 세션으로 update한 뒤 사용자 설정 바이트와 생성 7개 보존 포함
+두 fixture의 strict validate도 실제 CLI PASS 관측
+이 결과는 OpenSpec 도구의 생명주기 검사이며 native Codex의 전체 구현·리뷰·인계 인수는 별도
 
 ## Matt Pocock
 
-domain-modeling·grilling·codebase-design·code-review 네 스킬을 root skills로 공급
-grill-with-docs의 결정 기록은 grilling 참고 자료로, writing-for-agents의 지침은 markdown-authoring 참고 자료로 통합
-setup-matt-pocock-skills의 독립 공급 종료; 실제 제품 초기 구성의 대체 절차는 미완료
-통합한 세 이름의 기능 보존을 파일 이동만으로 완료 처리한 판단 정정
+원문 선정 7개 중 domain-modeling·grilling·codebase-design·code-review 네 스킬을 root skills로 공급
+나머지 세 기능의 현재 소유 위치는 아래와 같이 유지
+
+| 원문 선정 | 통합 위치 | 보존할 행동 |
+| --- | --- | --- |
+| setup-matt-pocock-skills | [development-tooling setup](../skills/development-tooling/references/openspec-setup.md) | 기존 tracker·CLAUDE·AGENTS·도구·승인 회수와 OpenSpec 생성·발견 |
+| grill-with-docs | [grilling 결정 기록](../skills/grilling/references/record-decisions.md) | 필요한 협의·결정 기록·domain-modeling 연결 |
+| writing-for-agents | [markdown-authoring 참고 자료](../skills/markdown-authoring/references/writing-for-agents.md) | 에이전트용 문서의 필수 지침·참고 자료 구분 |
+
+code-review의 [candidate helper](../skills/code-review/scripts/check-candidate.py)는 제품 검사·리뷰 권한을 실행하지 않는 읽기 전용 전제 검사
+실제 hidden Git flags의 red→green을 포함한 10개 회귀 통과와 native 읽기 전용 실행 인수를 분리
+통합한 이름의 파일 이동이나 helper 성공만으로 원문 행동 보존 완료를 선언하는 방식 제외
 
 ## Superpowers
 
-test-driven-development·verification-before-completion 두 스킬 공급
-receiving-code-review의 근거 확인 절차는 code-review 참고 자료로 통합
+원문 선정 4개 중 test-driven-development·verification-before-completion 두 독립 스킬 공급
 기존 systematic-debugging 수정본은 같은 이름의 단일 공급 유지
+receiving-code-review의 근거 확인·지원되는 수정·영향 검사는 [code-review 참고 자료](../skills/code-review/references/receiving-review.md)로 통합
 
 ## 로컬 변경
 
-제품 연결 CLI·Core workflow 전제를 제거하고 현재 작업·제품 명세·기존 명령 사용
+project-workflow·python-testing·streaming-testing을 추가하여 공통 작업 진행과 구체적인 보고서·미디어 검사를 연결
+제품의 기존 명세·명령·CI를 사용하며 공통 실행 서비스·제품별 Adapter schema·binding 도구 추가 제외
+두 fixture는 같은 공통 revision의 재사용 검증을 위한 예제이고 실제 제품·GPU·tracker·운영 결과와 별도
+
 스킬의 직접 호출 조건과 관련 자료를 보존하고 선택 설치에 필요한 license 함께 포함
 일반 정책·기존 스킬의 저작권과 license는 기존 자료에 따라 유지
 artifact hash 범위에 포함됐다는 이유만으로 다른 license를 일괄 적용하는 방식 제외
+최종 root provenance·lock 갱신과 검사는 통합 담당자 범위이며 이 문서의 검사 수로 대체 불가

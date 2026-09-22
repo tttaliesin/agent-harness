@@ -83,7 +83,7 @@ It starts a new receiver after publication recovers; this does not prove that an
 This fixture demonstrates CPU media transport and a synthetic source restart.
 It does not execute GPU inference, test tracker identity continuity, exercise a production media server, or establish trusted CI provenance.
 Both GPU and tracker results remain `NOT_RUN`.
-The product adapter must separately invoke its real RTSP → inference → WebRTC route and approved device, timing, and tracking checks, as described in [product pipeline evidence](../../skills/streaming-testing/references/product-pipeline.md).
+Product checks must separately exercise the real RTSP → inference → WebRTC route and approved device, timing, and tracking criteria, as described in [product pipeline evidence](../../skills/streaming-testing/references/product-pipeline.md).
 
 Run the targeted regression tests from the repository root with the prepared maintenance environment:
 

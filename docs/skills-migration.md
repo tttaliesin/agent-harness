@@ -1,51 +1,64 @@
 # 공통 스킬 공급 구조 전환
 
 2026-09-22 사용자 요청에 따라 npx skills 선택 설치 중심으로 변경
-R1은 공급 구조 정리까지 완료한 단계이며 원문 전체 기능 구현은 미완료
-[원문 요구 대조](implementation/requirements-coverage.md)에 따라 기능 보완·실행 예제 검증을 사용자 설치 전환보다 먼저 진행
+현재 통합 소스는 공통 22개와 두 fixture별 OpenSpec 생성 7개로 구성
+구현·관측·미완료의 기준은 [요구 대조](implementation/requirements-coverage.md)와 [기능 인수 기록](implementation/functional-acceptance.md) 참조
 
 ## 현재 저장소와 기존 설치
 
-공급 원본을 root skills의 19개로 정리하고 전용 실행 CLI·Adapter schema·binding·역할 template·플러그인 3개의 원본 공급 종료
-직전 구조는 Git commit 2d0d4bdd0a4e3b854c1745725e4523c27f882733에서 확인 가능
+R1의 19개 공급에 project-workflow·python-testing·streaming-testing을 추가한 현재 22개
+전용 실행 CLI·Adapter schema·binding·역할 template·플러그인 3개의 원본 공급 종료는 유지
+직전 구조는 Git commit `2d0d4bdd0a4e3b854c1745725e4523c27f882733`에서 확인 가능
 현재 사용자 설정과 설치 cache는 이 소스 변경으로 자동 갱신되지 않는 상태
 
-## 9개 독립 스킬의 공급 변경
+OpenSpec은 [고정 CLI의 초기 구성·갱신 절차](../skills/development-tooling/references/openspec-setup.md)로 각 제품에 생성하는 별도 공급
+공통 22개에 복사해 중복 설치하는 방식 제외
+선택 설치와 native catalog 발견의 관측을 사용자 설치 R2 완료로 처리하지 않는 기준
 
-아래는 파일 이동·종료 기록이며 기능 보존 완료 판정이 아님
-일부 절차 이동만으로 중복이라고 단정한 판단 정정; 호출 조건과 전체 작업 결과의 동등성 재검증 필요
+## 기존 독립 스킬의 공급 변경
 
-| 종료한 스킬 | 필요한 절차의 소유자 |
+이전 9개 이름 정리 중 project-workflow는 작업 진행 연결을 맡는 독립 스킬로 복원
+나머지 이름의 통합은 소유 위치를 뜻하며 원문 기능의 실제 인수 완료와 별개
+
+| 기존 이름 | 현재 공급·필요한 절차의 소유자 |
 | --- | --- |
-| project-bootstrap | development-tooling의 기존 제품 조사·도구 확인 |
-| project-workflow | 실제 명세·해당 구현 스킬·verification-before-completion |
-| project-review | code-review의 후보 확인·두 축 검토·실제 권한 경계 |
-| project-pr-followup | github-operations의 명시된 PR 후속 작업 |
-| project-handoff | github-operations의 인계 참고 자료 |
-| setup-matt-pocock-skills | Skills CLI 설치와 development-tooling |
-| grill-with-docs | grilling의 결정 기록 참고 자료 |
-| writing-for-agents | markdown-authoring 참고 자료와 사용 가능한 skill-creator |
-| receiving-code-review | code-review의 피드백 검증 참고 자료 |
+| project-bootstrap | [development-tooling 초기 구성](../skills/development-tooling/references/openspec-setup.md) |
+| project-workflow | [독립 스킬로 공급](../skills/project-workflow/SKILL.md), 기존 승인·OpenSpec·제품 명령·리뷰·인계 연결 |
+| project-review | [code-review](../skills/code-review/SKILL.md)의 후보 검사·Spec/Standards·실제 권한 확인 |
+| project-pr-followup | [github-operations](../skills/github-operations/references/followup-and-handoff.md)의 지정 PR 후속 절차 |
+| project-handoff | [project-workflow 재개](../skills/project-workflow/references/followup-and-resumption.md)와 GitHub 인계 절차 |
+| setup-matt-pocock-skills | Skills CLI 선택 설치와 development-tooling의 기존 tracker·문서·OpenSpec 7개 구성 |
+| grill-with-docs | [grilling 결정 기록](../skills/grilling/references/record-decisions.md) |
+| writing-for-agents | [markdown-authoring 참고 자료](../skills/markdown-authoring/references/writing-for-agents.md)와 사용 가능한 skill-creator |
+| receiving-code-review | [code-review 피드백 검증](../skills/code-review/references/receiving-review.md) |
 
 ## 설치 전환 순서
 
-전제: OpenSpec·작업 연결·분야별 기능과 두 실행 예제 보완 후 대체 기능의 실제 호출 검증
-현재 19개 목록만으로 기존 설치 전체를 대체하거나 비활성화하는 작업 보류
+현재 단계는 기능 구현·통합 검사와 실제 호출 인수
+사용자 설치 R2는 아래 실제 관측이 준비된 항목부터 별도로 진행할 단계
 
 1. 실제 설치 위치·출처·플러그인 설정과 직접 수정한 파일을 비교·백업
 2. 시험 위치에서 선택 설치·반복 설치·갱신·복구 확인
-3. 필요한 스킬을 새 공급에서 설치하고 내용과 발견 여부 확인
+3. 필요한 공통 스킬과 제품에서 생성할 OpenSpec 7개를 구분하여 내용·발견·실제 호출 확인
 4. 대체된 항목에 한해 workflow-core·matt-engineering·superpowers-execution 중복 공급 비활성화
 5. 실제 Codex 작업에서 이름별 공급 하나와 정상 호출 확인
+6. 같은 revision의 두 예제를 새 설치본으로 재실행하고 설치 경로 변경에 따른 회귀 확인
 
-이 순서는 이후 설치 작업용 안내이며 R1에서 실행 완료한 기록이 아님
-권한·trust 화면은 실제 앱 절차에 따라 처리하고 소스 변경으로 승인된 것으로 간주 제외
+이 순서는 이후 사용자 설치 작업용 안내이며 현재 R2 실행 완료 기록이 아님
+권한·trust 화면은 실제 앱 절차에 따라 처리하고 소스 변경이나 canary 쓰기 거부만으로 전체 실행 승인·인수 판정 제외
 미사용 로컬 .venv·dist·과거 .harness 결과는 다른 작업 소유 여부 확인 후 별도 정리
 
-## 남은 구현과 검증
+## 남은 검증
 
-OpenSpec 7개 연결, 시작부터 인계까지 작업 흐름, Web·Python·Streaming의 구체적인 지침·도구·실행 예제 보완
-동일 revision의 공통 스킬을 Web·Python 예제와 Streaming 예제에서 실제 사용
-Allsen에서는 기존 Taskfile·CI·명세로 실제 변경·리뷰·인계 검증
-runner·배포의 승인·대상·실패 복구는 해당 운영 저장소에서 확인
-스킬 공급 성공으로 CI 강제·읽기 전용 권한·중복 실행 방지·운영 인수를 통과 처리하는 방식 제외
+OpenSpec CLI 1.13.1의 생명주기 5개와 두 fixture strict validate 통과, candidate helper 10개 통과 관측
+Web/Python worker 검사·MCP DOM·Streaming CPU/WebRTC 관측은 [기능 인수 기록](implementation/functional-acceptance.md)에 보존
+통합 Web 재실행은 Python 12개·Edge 7개·두 JUnit 판정·cleanup·source/locks 보존 확인, root 회귀 39개 PASS 관측
+실행 시점은 working HEAD `481f6a8`과 미커밋 docs/core 변경 포함; 최종 후보의 통과 근거로 자동 승격 제외
+Streaming epoch·cleanup·outage 수정 후 결과, 같은 후보의 독립 리뷰·인계·CI는 통합 담당자 확정 대기
+
+native 읽기 전용 canary 쓰기는 DENIED, shell 읽기도 두 시도 DENIED로 실제 리뷰 실행 미인수
+검증된 committed snapshot의 stdin 전달 등 허용 입력 경로는 실제 측정 전까지 대기 상태로 유지
+거부된 읽기 재시도·권한 약화·우회로 전환을 완료하는 방식 제외
+
+Allsen의 기존 Taskfile·CI·명세를 통한 실제 제품 검증과 GPU·tracker·운영 runner·배포·복구는 별도 인수
+스킬 공급 성공을 CI 강제·읽기 전용 전체 실행·중복 실행 방지·운영 인수의 통과로 취급하는 방식 제외
