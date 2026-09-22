@@ -48,4 +48,4 @@ project-workflow·python-testing·streaming-testing을 추가하여 공통 작�
 스킬의 직접 호출 조건과 관련 자료를 보존하고 선택 설치에 필요한 license 함께 포함
 일반 정책·기존 스킬의 저작권과 license는 기존 자료에 따라 유지
 artifact hash 범위에 포함됐다는 이유만으로 다른 license를 일괄 적용하는 방식 제외
-최종 root provenance·lock 갱신과 검사는 통합 담당자 범위이며 이 문서의 검사 수로 대체 불가
+root provenance·lock 검사는 실제 Linux CI에서 통과; 코드 리뷰와 fixture 결과를 해당 후보·run에 연결하는 기준 유지

@@ -54,10 +54,10 @@ OpenSpec CLI 1.13.1의 생명주기 5개와 두 fixture strict validate 통과, 
 Web/Python worker 검사·MCP DOM·Streaming CPU/WebRTC 관측은 [기능 인수 기록](implementation/functional-acceptance.md)에 보존
 통합 Web 재실행은 Python 12개·Edge 7개·두 JUnit 판정·cleanup·source/locks 보존 확인, root 회귀 39개 PASS 관측
 실행 시점은 working HEAD `481f6a8`과 미커밋 docs/core 변경 포함; 최종 후보의 통과 근거로 자동 승격 제외
-Streaming epoch·cleanup·outage 수정 후 결과, 같은 후보의 독립 리뷰·인계·CI는 통합 담당자 확정 대기
+Streaming epoch·cleanup·outage 수정과 고정 후보 재실행 완료; 독립 native 리뷰·인계 보완·CI 상세는 기능 인수 기록
 
-native 읽기 전용 canary 쓰기는 DENIED, shell 읽기도 두 시도 DENIED로 실제 리뷰 실행 미인수
-검증된 committed snapshot의 stdin 전달 등 허용 입력 경로는 실제 측정 전까지 대기 상태로 유지
+native 읽기 전용 canary 쓰기 DENIED 확인 후 허용된 stdin 소스 입력으로 분리된 두 native 리뷰 실행·트리 보존 확인
+이 리뷰는 제품 명령 실행이나 사용자 Desktop 자동 선택 인수와 구분
 거부된 읽기 재시도·권한 약화·우회로 전환을 완료하는 방식 제외
 
 Allsen의 기존 Taskfile·CI·명세를 통한 실제 제품 검증과 GPU·tracker·운영 runner·배포·복구는 별도 인수

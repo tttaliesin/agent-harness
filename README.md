@@ -54,8 +54,8 @@ Codex에서 `$readme-authoring README를 처음 쓰는 사람이 따라갈 수 �
 
 | 예제 | 입력과 확인할 동작 | 사용법·요구 |
 | --- | --- | --- |
-| Web/API | 이름 입력의 인사 응답, 잘못된 입력·권한·서버 오류와 화면 복구 | [Web/API 실행 안내](fixtures/web-api/USAGE.md), [Web/API 요구](fixtures/web-api/openspec/changes/accept-web-api/specs/web-api/spec.md) |
-| Streaming | 합성 RTSP 소스의 발행·중단·재개와 실제 디코딩·브라우저 WebRTC 수신 | [Streaming 실행 안내](fixtures/streaming/README.md), [Streaming 요구](fixtures/streaming/openspec/changes/accept-streaming/specs/streaming/spec.md) |
+| Web/API | 이름 입력의 인사 응답, 잘못된 입력·권한·서버 오류와 화면 복구 | [Web/API 실행 안내](fixtures/web-api/USAGE.md), [Web/API 요구](fixtures/web-api/openspec/specs/web-api/spec.md) |
+| Streaming | 합성 RTSP 소스의 발행·중단·재개와 실제 디코딩·브라우저 WebRTC 수신 | [Streaming 실행 안내](fixtures/streaming/README.md), [Streaming 요구](fixtures/streaming/openspec/specs/streaming/spec.md) |
 
 예: project-workflow가 설치된 작업에서 `$project-workflow 승인한 change의 남은 구현과 검사를 계속하고 미완료 인수 조건을 기록해줘` 요청
 예상 결과는 change의 기존 승인 재사용, 실제 제품 명령 실행, 후보에 연결한 검사·리뷰·다음 행동 기록
