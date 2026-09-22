@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web/API fixture</title>
+<link rel="icon" href="data:,">
+<main>
+  <h1>Web/API fixture</h1>
+  <p>Loopback demonstration with public fixture identities.</p>
+  <form id="greeting">
+    <label>Name <input id="name" name="name"></label>
+    <button type="submit">Greet</button>
+  </form>
+  <label>Fixture identity
+    <select id="identity">
+      <option value="guest">Guest</option>
+      <option value="viewer">Viewer</option>
+      <option value="admin">Admin</option>
+    </select>
+  </label>
+  <button id="admin" type="button">Check admin access</button>
+  <button id="error" type="button">Simulate service error</button>
+  <p role="status"></p>
+  <p role="alert"></p>
+</main>
+<script>
+const status = document.querySelector('[role=status]');
+const alert = document.querySelector('[role=alert]');
+async function showResponse(url, headers = {}) {
+  status.textContent = '';
+  alert.textContent = '';
+  try {
+    const response = await fetch(url, { headers });
+    const result = await response.json();
+    (response.ok ? status : alert).textContent = response.ok ? result.message : result.error;
+  } catch {
+    alert.textContent = 'Request could not reach the fixture';
+  }
+}
+document.querySelector('#greeting').addEventListener('submit', event => {
+  event.preventDefault();
+  showResponse('/api/greet?name=' + encodeURIComponent(document.querySelector('#name').value));
+});
+document.querySelector('#admin').addEventListener('click', () => {
+  const identity = document.querySelector('#identity').value;
+  const headers = identity === 'guest' ? {} : { Authorization: 'Bearer public-fixture-' + identity };
+  showResponse('/api/admin', headers);
+});
+document.querySelector('#error').addEventListener('click', () => showResponse('/api/error'));
+</script>
+</html>

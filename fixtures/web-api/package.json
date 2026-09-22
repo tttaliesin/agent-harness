@@ -1,0 +1,12 @@
+{
+  "name": "agent-harness-web-api-fixture",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/mcp": "0.0.82",
+    "@playwright/test": "1.63.0"
+  }
+}
